@@ -12,6 +12,7 @@ interface InputProps {
     disabled?: boolean
     error?: string
     className?: string
+    style?: React.CSSProperties
 }
 
 export function Input({
@@ -23,10 +24,11 @@ export function Input({
     required = false,
     disabled = false,
     error,
-    className = ''
+    className = '',
+    style
 }: InputProps) {
     return (
-        <div className={`form-group ${className}`}>
+        <div className={`form-group ${className}`} style={style}>
             {label && (
                 <label>
                     {label}

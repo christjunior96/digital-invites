@@ -6,12 +6,14 @@ interface CardProps {
     children: React.ReactNode
     className?: string
     padding?: 'sm' | 'md' | 'lg'
+    style?: React.CSSProperties
 }
 
 export function Card({
     children,
     className = '',
-    padding = 'md'
+    padding = 'md',
+    style
 }: CardProps) {
     const paddingClasses = {
         sm: 'p-3',
@@ -22,7 +24,7 @@ export function Card({
     const classes = `card ${paddingClasses[padding]} ${className}`
 
     return (
-        <div className={classes}>
+        <div className={classes} style={style}>
             {children}
         </div>
     )

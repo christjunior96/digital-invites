@@ -75,6 +75,15 @@ export function LoginForm() {
         return (
             <Card>
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid #f3f3f3',
+                        borderTop: '4px solid #FF6B6B',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 1rem'
+                    }} />
                     <p>Prüfe Anmeldestatus...</p>
                 </div>
             </Card>
@@ -86,6 +95,15 @@ export function LoginForm() {
         return (
             <Card>
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid #f3f3f3',
+                        borderTop: '4px solid #4CAF50',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 1rem'
+                    }} />
                     <p>Sie sind bereits angemeldet. Weiterleitung...</p>
                 </div>
             </Card>
@@ -93,13 +111,46 @@ export function LoginForm() {
     }
 
     return (
-        <Card>
-            <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                Anmelden
-            </h2>
+        <Card className="login-card">
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <div style={{
+                    fontSize: '3rem',
+                    marginBottom: '1rem',
+                    animation: 'bounce 2s ease-in-out infinite'
+                }}>
+                    🎉
+                </div>
+                <h2 style={{
+                    marginBottom: '0.5rem',
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontSize: '2rem',
+                    fontWeight: 'bold'
+                }}>
+                    Willkommen zurück!
+                </h2>
+                <p style={{
+                    color: '#666',
+                    fontSize: '1.1rem',
+                    margin: 0
+                }}>
+                    Melde dich an und starte die Party! 🎊
+                </p>
+            </div>
 
             {error && (
-                <div className="alert alert--error">
+                <div className="alert alert--error" style={{
+                    background: 'rgba(255, 107, 107, 0.1)',
+                    border: '2px solid #FF6B6B',
+                    borderRadius: '15px',
+                    color: '#FF6B6B',
+                    padding: '1rem',
+                    marginBottom: '1.5rem',
+                    textAlign: 'center',
+                    animation: 'shake 0.5s ease-in-out'
+                }}>
                     {error}
                 </div>
             )}
@@ -112,6 +163,9 @@ export function LoginForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="ihre@email.de"
+                    style={{
+                        marginBottom: '1.5rem'
+                    }}
                 />
 
                 <Input
@@ -121,25 +175,72 @@ export function LoginForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="Ihr Passwort"
+                    style={{
+                        marginBottom: '2rem'
+                    }}
                 />
 
                 <Button
                     type="submit"
                     disabled={isLoading}
                     className="w-full"
+                    style={{
+                        background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
+                        border: 'none',
+                        borderRadius: '15px',
+                        padding: '1rem',
+                        fontSize: '1.1rem',
+                        fontWeight: 'bold',
+                        color: 'white',
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                        opacity: isLoading ? 0.7 : 1,
+                        transform: isLoading ? 'scale(0.98)' : 'scale(1)',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 8px 25px rgba(255, 107, 107, 0.3)'
+                    }}
                 >
-                    {isLoading ? 'Anmelden...' : 'Anmelden'}
+                    {isLoading ? (
+                        <span>
+                            <span style={{
+                                display: 'inline-block',
+                                width: '16px',
+                                height: '16px',
+                                border: '2px solid transparent',
+                                borderTop: '2px solid white',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite',
+                                marginRight: '0.5rem'
+                            }} />
+                            Anmelden...
+                        </span>
+                    ) : (
+                        '🎉 Anmelden 🎉'
+                    )}
                 </Button>
             </form>
 
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                <p>
+            <div style={{
+                marginTop: '2rem',
+                textAlign: 'center',
+                padding: '1.5rem',
+                background: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: '15px',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
+            }}>
+                <p style={{ margin: 0, color: '#666' }}>
                     Noch kein Konto?{' '}
-                    <a href="/register" style={{ color: 'var(--primary-color)' }}>
-                        Registrieren
+                    <a href="/register" style={{
+                        color: '#FF6B6B',
+                        textDecoration: 'none',
+                        fontWeight: 'bold',
+                        transition: 'color 0.3s ease'
+                    }}>
+                        Registrieren 🎊
                     </a>
                 </p>
             </div>
+
+
         </Card>
     )
 }

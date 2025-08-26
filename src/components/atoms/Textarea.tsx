@@ -12,6 +12,7 @@ interface TextareaProps {
     error?: string
     rows?: number
     className?: string
+    style?: React.CSSProperties
 }
 
 export function Textarea({
@@ -23,10 +24,11 @@ export function Textarea({
     disabled = false,
     error,
     rows = 4,
-    className = ''
+    className = '',
+    style
 }: TextareaProps) {
     return (
-        <div className={`form-group ${className}`}>
+        <div className={`form-group ${className}`} style={style}>
             {label && (
                 <label>
                     {label}
