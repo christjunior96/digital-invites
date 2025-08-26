@@ -225,25 +225,12 @@ export default function DashboardPage() {
                                 }}
                                 onClick={() => router.push(`/invites/${invitation.id}/guests`)}
                             >
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'flex-start',
-                                    marginBottom: '1.5rem'
-                                }}>
+                                <div className="dashboard-invitation-header">
                                     <div>
-                                        <h3 style={{
-                                            marginBottom: '0.5rem',
-                                            fontSize: '1.5rem',
-                                            color: '#333'
-                                        }}>
+                                        <h3 className="dashboard-invitation-title">
                                             {invitation.title}
                                         </h3>
-                                        <p style={{
-                                            color: '#666',
-                                            marginBottom: '0.25rem',
-                                            fontSize: '1.1rem'
-                                        }}>
+                                        <p className="dashboard-invitation-date">
                                             📅 {new Date(invitation.date).toLocaleDateString('de-DE', {
                                                 weekday: 'long',
                                                 year: 'numeric',
@@ -251,70 +238,51 @@ export default function DashboardPage() {
                                                 day: 'numeric'
                                             })} um {invitation.time}
                                         </p>
-                                        <p style={{ color: '#666' }}>
+                                        <p className="dashboard-invitation-address">
                                             📍 {invitation.address}
                                         </p>
                                     </div>
-                                    <div style={{
-                                        display: 'flex',
-                                        gap: '0.5rem',
-                                        flexDirection: 'column'
-                                    }}>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
+                                    <div className="dashboard-invitation-actions">
+                                        <button
+                                            className="dashboard-invitation-button"
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 router.push(`/invites/${invitation.id}/edit`)
                                             }}
                                             style={{
                                                 border: '2px solid #FF6B6B',
-                                                color: '#FF6B6B',
-                                                borderRadius: '10px',
-                                                fontWeight: 'bold'
+                                                color: '#FF6B6B'
                                             }}
                                         >
                                             ✏️ Bearbeiten
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
+                                        </button>
+                                        <button
+                                            className="dashboard-invitation-button"
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 router.push(`/invites/${invitation.id}/guests`)
                                             }}
                                             style={{
                                                 border: '2px solid #4ECDC4',
-                                                color: '#4ECDC4',
-                                                borderRadius: '10px',
-                                                fontWeight: 'bold'
+                                                color: '#4ECDC4'
                                             }}
                                         >
                                             👥 Gäste ({invitation.guests.length})
-                                        </Button>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <div style={{
-                                    display: 'flex',
-                                    gap: '2rem',
-                                    fontSize: '0.9rem',
-                                    color: '#666',
-                                    padding: '1rem',
-                                    background: 'rgba(255, 255, 255, 0.5)',
-                                    borderRadius: '10px',
-                                    border: '1px solid rgba(255, 255, 255, 0.3)'
-                                }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ color: '#10b981' }}>✅</span>
+                                <div className="dashboard-invitation-stats">
+                                    <span className="dashboard-invitation-stat dashboard-invitation-stat-attending">
+                                        <span>✅</span>
                                         Zusagen: {invitation.guests.filter(g => g.isAttending === true).length}
                                     </span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ color: '#ef4444' }}>❌</span>
+                                    <span className="dashboard-invitation-stat dashboard-invitation-stat-declined">
+                                        <span>❌</span>
                                         Absagen: {invitation.guests.filter(g => g.isAttending === false).length}
                                     </span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ color: '#f59e0b' }}>⏳</span>
+                                    <span className="dashboard-invitation-stat dashboard-invitation-stat-pending">
+                                        <span>⏳</span>
                                         Ausstehend: {invitation.guests.filter(g => g.isAttending === null).length}
                                     </span>
                                 </div>

@@ -133,31 +133,26 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
     }
 
     return (
-        <>
+        <div className="guests-page">
             <Navigation />
-            <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
-                <div style={{ marginBottom: '2rem' }}>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '1rem'
-                    }}>
-                        <h1>Gäste verwalten</h1>
-                        <Button onClick={() => router.push('/dashboard')}>
+            <div className="guests-container">
+                <div className="guests-header">
+                    <div className="guests-header-top">
+                        <h1 className="guests-title">Gäste verwalten</h1>
+                        <button className="guests-back-button" onClick={() => router.push('/dashboard')}>
                             Zurück zum Dashboard
-                        </Button>
+                        </button>
                     </div>
-                    <h2 style={{ color: 'var(--secondary-color)' }}>{invitation.title}</h2>
-                    <p style={{ color: 'var(--secondary-color)' }}>
+                    <h2 className="guests-event-title">{invitation.title}</h2>
+                    <p className="guests-event-details">
                         {new Date(invitation.date).toLocaleDateString('de-DE')} um {invitation.time} - {invitation.address}
                     </p>
                 </div>
 
-                <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: '1fr 1fr' }}>
+                <div className="guests-content">
                     {/* Neuen Gast hinzufügen */}
-                    <Card>
-                        <h3 style={{ marginBottom: '1rem' }}>Neuen Gast hinzufügen</h3>
+                    <div className="guests-add-card">
+                        <h3 className="guests-add-title">Neuen Gast hinzufügen</h3>
 
                         {error && (
                             <div className="alert alert--error">
@@ -190,14 +185,15 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                                 placeholder="Telefonnummer des Gasts"
                             />
 
-                            <div className="form-group">
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div className="guests-checkbox-group">
+                                <label className="guests-checkbox-label">
                                     <input
                                         type="checkbox"
+                                        className="guests-checkbox"
                                         checked={newGuest.isCouple}
                                         onChange={(e) => setNewGuest(prev => ({ ...prev, isCouple: e.target.checked }))}
                                     />
-                                    Paar (zwei Personen)
+                                    <span className="guests-checkbox-text">Paar (zwei Personen)</span>
                                 </label>
                             </div>
 
@@ -205,53 +201,42 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                                 Gast hinzufügen
                             </Button>
                         </form>
-                    </Card>
+                    </div>
 
                     {/* Gästeliste */}
-                    <div>
-                        <h3 style={{ marginBottom: '1rem' }}>Gästeliste ({guests.length})</h3>
+                    <div className="guests-list-section">
+                        <h3 className="guests-list-title">Gästeliste ({guests.length})</h3>
 
                         {guests.length === 0 ? (
-                            <Card>
-                                <p style={{ textAlign: 'center', color: 'var(--secondary-color)' }}>
-                                    Noch keine Gäste hinzugefügt
-                                </p>
-                            </Card>
+                            <div className="guests-list-empty">
+                                <p>Noch keine Gäste hinzugefügt</p>
+                            </div>
                         ) : (
-                            <div style={{ display: 'grid', gap: '1rem' }}>
+                            <div className="guests-list">
                                 {guests.map((guest) => (
-                                    <Card key={guest.id} padding="sm">
-                                        <div style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'flex-start'
-                                        }}>
-                                            <div>
-                                                <h4 style={{ marginBottom: '0.25rem' }}>
+                                    <div key={guest.id} className="guests-item-card">
+                                        <div className="guests-item-content">
+                                            <div className="guests-item-info">
+                                                <h4 className="guests-item-name">
                                                     {guest.name}
-                                                    {guest.isCouple && <span style={{ color: 'var(--secondary-color)' }}> (Paar)</span>}
+                                                    {guest.isCouple && <span className="guests-item-couple"> (Paar)</span>}
                                                 </h4>
                                                 {guest.email && (
-                                                    <p style={{ fontSize: '0.875rem', color: 'var(--secondary-color)' }}>
+                                                    <p className="guests-item-contact">
                                                         {guest.email}
                                                     </p>
                                                 )}
                                                 {guest.phone && (
-                                                    <p style={{ fontSize: '0.875rem', color: 'var(--secondary-color)' }}>
+                                                    <p className="guests-item-contact">
                                                         {guest.phone}
                                                     </p>
                                                 )}
-                                                <div style={{
-                                                    display: 'flex',
-                                                    gap: '1rem',
-                                                    fontSize: '0.875rem',
-                                                    marginTop: '0.5rem'
-                                                }}>
-                                                    <span style={{
-                                                        color: guest.isAttending === true ? 'var(--success-color)' :
-                                                            guest.isAttending === false ? 'var(--error-color)' :
-                                                                'var(--secondary-color)'
-                                                    }}>
+                                                <div className="guests-item-status">
+                                                    <span className={
+                                                        guest.isAttending === true ? 'guests-item-status-attending' :
+                                                            guest.isAttending === false ? 'guests-item-status-declined' :
+                                                                'guests-item-status-pending'
+                                                    }>
                                                         {guest.isAttending === true ? '✅ Zusage' :
                                                             guest.isAttending === false ? '❌ Absage' :
                                                                 '⏳ Ausstehend'}
@@ -259,30 +244,28 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                                                     {guest.plusOne && <span>+1</span>}
                                                 </div>
                                             </div>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
+                                            <div className="guests-item-actions">
+                                                <button
+                                                    className="guests-item-button guests-item-button-outline"
                                                     onClick={() => copyGuestLink(guest.id)}
                                                 >
                                                     Link kopieren
-                                                </Button>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
+                                                </button>
+                                                <button
+                                                    className="guests-item-button guests-item-button-danger"
                                                     onClick={() => handleDeleteGuest(guest.id)}
                                                 >
                                                     Löschen
-                                                </Button>
+                                                </button>
                                             </div>
                                         </div>
-                                    </Card>
+                                    </div>
                                 ))}
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

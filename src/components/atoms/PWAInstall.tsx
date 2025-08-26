@@ -1,10 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 export function PWAInstall() {
     const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null)
     const [showInstallButton, setShowInstallButton] = useState(false)
+    const pathname = usePathname()
+
+    // Seiten, auf denen der Install-Button nicht angezeigt werden soll
+    const hiddenPaths = ['/guest']
 
     useEffect(() => {
         // Service Worker registrieren
@@ -61,8 +66,11 @@ export function PWAInstall() {
         setShowInstallButton(false)
     }
 
-    // Install-Button nur anzeigen, wenn PWA installierbar ist
-    if (!showInstallButton) return null
+    // Prüfen, ob der aktuelle Pfad in der versteckten Liste ist
+    const shouldHideButton = hiddenPaths.some(path => pathname.startsWith(path))
+
+    // Install-Button nur anzeigen, wenn PWA installierbar ist und nicht versteckt werden soll
+    if (!showInstallButton || shouldHideButton) return null
 
     return (
         <div style={{
