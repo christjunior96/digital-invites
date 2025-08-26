@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { use, useCallback } from 'react'
-import { Button } from '@/components/atoms/Button'
-
-import { Textarea } from '@/components/atoms/Textarea'
 import { Card } from '@/components/atoms/Card'
 import { Confetti } from '@/components/atoms/Confetti'
 import { CelebrationConfetti } from '@/components/atoms/CelebrationConfetti'
@@ -198,12 +195,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
 
     if (isLoading) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
+            <div className="guest-loading">
                 <div>Laden...</div>
             </div>
         )
@@ -211,12 +203,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
 
     if (error || !guest || !invitation) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
+            <div className="guest-error">
                 <Card>
                     <h2>Fehler</h2>
                     <p>{error || 'Einladung nicht gefunden'}</p>
@@ -226,30 +213,18 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
     }
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            position: 'relative',
-            overflow: 'hidden',
-            padding: '2rem'
-        }}>
+        <div className="guest-page">
             {/* Konfetti nur anzeigen, wenn kein Hintergrundbild gesetzt ist */}
             {!invitation.backgroundImage && <Confetti />}
 
             {/* Feier-Konfetti anzeigen, wenn der Gast antwortet */}
             <CelebrationConfetti trigger={showCelebration} isAttending={formData.isAttending || false} />
 
-
-
-            <div className="container" style={{
-                maxWidth: '600px',
-                margin: '0 auto',
-                position: 'relative',
-                zIndex: 2
-            }}>
+            <div className="guest-container">
                 <Card>
-                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                        <h1 style={{ marginBottom: '1rem' }}>{invitation.title}</h1>
-                        <p style={{ fontSize: '1.125rem', marginBottom: '0.5rem' }}>
+                    <div className="guest-header">
+                        <h1 className="guest-title">{invitation.title}</h1>
+                        <p className="guest-date">
                             {new Date(invitation.date).toLocaleDateString('de-DE', {
                                 weekday: 'long',
                                 year: 'numeric',
@@ -257,16 +232,16 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                 day: 'numeric'
                             })}
                         </p>
-                        <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>
+                        <p className="guest-date">
                             um {invitation.time} Uhr
                         </p>
-                        <p style={{ fontSize: '1rem', color: 'var(--secondary-color)' }}>
+                        <p className="guest-address">
                             {invitation.address}
                         </p>
                     </div>
 
                     {invitation.description && (
-                        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                        <div className="guest-description">
                             <p>{invitation.description}</p>
                         </div>
                     )}
@@ -275,52 +250,44 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                         <h3 style={{ marginBottom: '1rem' }}>
                             Hallo {guest.name}!
                         </h3>
-                        <p style={{ color: 'var(--secondary-color)' }}>
-                            Bitte bestätigen Sie Ihre Teilnahme an der Veranstaltung.
-                        </p>
+                        {!isSubmitted && (
+                            <p style={{ color: 'var(--secondary-color)' }}>
+                                Bitte bestätigen Sie Ihre Teilnahme an der Veranstaltung.
+                            </p>
+                        )}
                     </div>
 
                     {isSubmitted ? (
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="alert alert--success">
-                                <h3 style={{
-                                    fontSize: '1.5rem',
-                                    marginBottom: '1rem',
-                                    background: formData.isAttending
-                                        ? 'linear-gradient(135deg, #FF6B6B, #4ECDC4)'
-                                        : 'inherit',
-                                    WebkitBackgroundClip: formData.isAttending ? 'text' : 'inherit',
-                                    WebkitTextFillColor: formData.isAttending ? 'transparent' : 'inherit'
-                                }}>
-                                    {formData.isAttending ? '🎉 Vielen Dank für Ihre Zusage! 🎉' : 'Vielen Dank für Ihre Antwort!'}
-                                </h3>
-                                <p style={{ fontSize: '1.1rem' }}>
-                                    {formData.isAttending
-                                        ? 'Wir freuen uns riesig auf Ihr Kommen! Es wird eine fantastische Party! 🎊'
-                                        : 'Schade, dass Sie nicht kommen können. Wir werden Sie vermissen! 😔'
-                                    }
+                        <div className="guest-success-message">
+                            <h3 className="guest-success-title">
+                                {formData.isAttending ? '🎉 Vielen Dank für Ihre Zusage! 🎉' : 'Vielen Dank für Ihre Antwort!'}
+                            </h3>
+                            <p className="guest-success-text">
+                                {formData.isAttending
+                                    ? 'Wir freuen uns riesig auf Ihr Kommen! Es wird eine fantastische Party! 🎊'
+                                    : 'Schade, dass Sie nicht kommen können. Wir werden Sie vermissen! 😔'
+                                }
+                            </p>
+                            {formData.notes && (
+                                <p style={{ marginTop: '1rem' }}>
+                                    <strong>Ihre Anmerkung:</strong> {formData.notes}
                                 </p>
-                                {formData.notes && (
-                                    <p style={{ marginTop: '1rem' }}>
-                                        <strong>Ihre Anmerkung:</strong> {formData.notes}
-                                    </p>
-                                )}
-                            </div>
+                            )}
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit} className="guest-form">
                             {error && (
-                                <div className="alert alert--error">
+                                <div className="guest-error-message">
                                     {error}
                                 </div>
                             )}
 
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', marginBottom: '1rem', fontWeight: '500' }}>
+                            <div className="guest-form-group">
+                                <label className="guest-form-label">
                                     Kommen Sie zur Veranstaltung?
                                 </label>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div className="guest-radio-group">
+                                    <label className={`guest-radio-option ${formData.isAttending === true ? 'selected' : ''}`}>
                                         <input
                                             type="radio"
                                             name="isAttending"
@@ -328,9 +295,9 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                             checked={formData.isAttending === true}
                                             onChange={() => setFormData(prev => ({ ...prev, isAttending: true }))}
                                         />
-                                        Ja, ich komme
+                                        <span>Ja, ich komme</span>
                                     </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <label className={`guest-radio-option ${formData.isAttending === false ? 'selected' : ''}`}>
                                         <input
                                             type="radio"
                                             name="isAttending"
@@ -338,47 +305,45 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                             checked={formData.isAttending === false}
                                             onChange={() => setFormData(prev => ({ ...prev, isAttending: false }))}
                                         />
-                                        Nein, ich kann nicht kommen
+                                        <span>Nein, ich kann nicht kommen</span>
                                     </label>
                                 </div>
                             </div>
 
                             {!guest.isCouple && formData.isAttending === true && (
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div className="guest-form-group">
+                                    <label className="guest-checkbox-group">
                                         <input
                                             type="checkbox"
+                                            className="guest-checkbox"
                                             checked={formData.plusOne}
                                             onChange={(e) => setFormData(prev => ({ ...prev, plusOne: e.target.checked }))}
                                         />
-                                        Ich bringe eine Begleitperson mit (+1)
+                                        <span>Ich bringe eine Begleitperson mit (+1)</span>
                                     </label>
                                 </div>
                             )}
 
-                            <Textarea
-                                label="Anmerkungen (optional)"
-                                value={formData.notes}
-                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                placeholder="Allergien, besondere Wünsche oder andere Anmerkungen..."
-                            />
+                            <div className="guest-form-group">
+                                <label className="guest-notes-label">Anmerkungen (optional)</label>
+                                <textarea
+                                    className="guest-notes-textarea"
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                                    placeholder="Allergien, besondere Wünsche oder andere Anmerkungen..."
+                                />
+                            </div>
 
-                            <Button type="submit" className="w-full">
+                            <button type="submit" className="guest-submit-button">
                                 Antwort senden
-                            </Button>
+                            </button>
                         </form>
                     )}
 
                     {invitation.contactInfo && (
-                        <div style={{
-                            marginTop: '2rem',
-                            padding: '1rem',
-                            backgroundColor: 'var(--background-color)',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '0.5rem'
-                        }}>
-                            <h4 style={{ marginBottom: '0.5rem' }}>Kontakt für Rückfragen:</h4>
-                            <p style={{ color: 'var(--secondary-color)' }}>{invitation.contactInfo}</p>
+                        <div className="guest-response-info">
+                            <h4 className="guest-response-title">Kontakt für Rückfragen:</h4>
+                            <p className="guest-response-details">{invitation.contactInfo}</p>
                         </div>
                     )}
                 </Card>

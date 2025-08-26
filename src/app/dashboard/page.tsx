@@ -53,28 +53,10 @@ export default function DashboardPage() {
 
     if (status === 'loading' || isLoading) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-            }}>
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '1rem'
-                }}>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        border: '4px solid #f3f3f3',
-                        borderTop: '4px solid #FF6B6B',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                    }} />
-                    <p style={{ color: '#666', fontSize: '1.1rem' }}>Lade deine Einladungen...</p>
+            <div className="dashboard-loading">
+                <div className="dashboard-loading-content">
+                    <div className="dashboard-loading-spinner" />
+                    <p className="dashboard-loading-text">Lade deine Einladungen...</p>
                 </div>
             </div>
         )
@@ -115,54 +97,21 @@ export default function DashboardPage() {
                 zIndex: 1
             }}>
                 {/* Header Section */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '3rem',
-                    padding: '2rem',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: '20px',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-                }}>
+                <div className="dashboard-header">
                     <div>
-                        <h1 style={{
-                            margin: 0,
-                            fontSize: '2.5rem',
-                            fontWeight: 'bold',
-                            background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            marginBottom: '0.5rem'
-                        }}>
+                        <h1 className="dashboard-title">
                             Willkommen, {session.user?.name}! 🎉
                         </h1>
-                        <p style={{
-                            margin: 0,
-                            color: '#666',
-                            fontSize: '1.1rem'
-                        }}>
+                        <p className="dashboard-subtitle">
                             Verwalte deine Einladungen und organisiere perfekte Events
                         </p>
                     </div>
-                    <Button
+                    <button
                         onClick={() => router.push('/invites/create')}
-                        style={{
-                            background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
-                            border: 'none',
-                            borderRadius: '15px',
-                            padding: '1rem 2rem',
-                            fontSize: '1.1rem',
-                            fontWeight: 'bold',
-                            color: 'white',
-                            boxShadow: '0 8px 25px rgba(255, 107, 107, 0.3)',
-                            transition: 'all 0.3s ease'
-                        }}
+                        className="dashboard-create-button"
                     >
                         🎊 Neue Einladung erstellen
-                    </Button>
+                    </button>
                 </div>
 
                 {/* Stats Section */}

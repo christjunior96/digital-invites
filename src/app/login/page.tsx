@@ -9,57 +9,20 @@ export default function LoginPage() {
     const message = searchParams.get('message')
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%)',
-            backgroundSize: '400% 400%',
-            animation: 'gradientShift 8s ease infinite',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
+        <div className="login-page">
             <Confetti />
 
             {/* Party-Lichter */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: `
-                    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)
-                `,
-                animation: 'lights 4s ease-in-out infinite alternate'
-            }} />
+            <div className="login-lights" />
 
-            <div style={{
-                width: '100%',
-                maxWidth: '450px',
-                position: 'relative',
-                zIndex: 2
-            }}>
+            <div className="login-container">
                 {message && (
-                    <div className="alert alert--success" style={{
-                        marginBottom: '1rem',
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(10px)',
-                        border: '2px solid #4CAF50',
-                        borderRadius: '15px',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-                    }}>
+                    <div className="login-message">
                         {message}
                     </div>
                 )}
                 <LoginForm />
             </div>
-
-
         </div>
     )
 }

@@ -15,50 +15,16 @@ export function Navigation() {
     }
 
     return (
-        <nav style={{
-            backgroundColor: 'var(--background-color)',
-            borderBottom: '1px solid var(--border-color)',
-            padding: '1rem 0'
-        }}>
+        <nav className="navigation">
             <div className="container">
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '2rem'
-                    }}>
-                        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
+                <div className="navigation-container">
+                    <div className="navigation-left">
+                        <a href="/dashboard" className="navigation-title">
                             Digital Invites
-                        </h1>
-                        <div style={{
-                            display: 'flex',
-                            gap: '1rem'
-                        }}>
-                            <a
-                                href="/dashboard"
-                                style={{
-                                    color: 'var(--primary-color)',
-                                    textDecoration: 'none',
-                                    fontWeight: '500'
-                                }}
-                            >
-                                Dashboard
-                            </a>
-                        </div>
+                        </a>
                     </div>
 
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem'
-                    }}>
-                        <span style={{ color: 'var(--secondary-color)' }}>
-                            Hallo, {session.user?.name}
-                        </span>
+                    <div className="navigation-right">
                         <Button
                             variant="outline"
                             size="sm"
