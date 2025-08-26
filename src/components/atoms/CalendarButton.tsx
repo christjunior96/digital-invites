@@ -106,7 +106,7 @@ END:VCALENDAR`
                                 Wählen Sie Ihren bevorzugten Kalender
                             </p>
                         </div>
-                        
+
                         <button
                             className="calendar-option-button calendar-google"
                             onClick={() => {
@@ -150,12 +150,12 @@ END:VCALENDAR`
                             <span>📥</span>
                             ICS-Datei herunterladen
                         </button>
-                        
+
                         <button
                             className="calendar-option-button"
                             onClick={() => setShowCalendarOptions(false)}
-                            style={{ 
-                                background: '#f3f4f6', 
+                            style={{
+                                background: '#f3f4f6',
                                 color: '#666',
                                 marginTop: '0.5rem'
                             }}
