@@ -43,18 +43,7 @@ export default function RegisterPage() {
                 <RegisterForm />
             </div>
 
-            <style jsx>{`
-                @keyframes gradientShift {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                }
-                
-                @keyframes lights {
-                    0% { opacity: 0.3; }
-                    100% { opacity: 0.8; }
-                }
-            `}</style>
+
         </div>
     )
 }

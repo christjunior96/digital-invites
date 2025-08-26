@@ -6,6 +6,8 @@ import { Button } from '@/components/atoms/Button'
 
 import { Textarea } from '@/components/atoms/Textarea'
 import { Card } from '@/components/atoms/Card'
+import { Confetti } from '@/components/atoms/Confetti'
+import { CelebrationConfetti } from '@/components/atoms/CelebrationConfetti'
 
 interface Guest {
     id: string
@@ -37,6 +39,8 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState('')
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [showCelebration, setShowCelebration] = useState(false)
+    const [hasShownCelebration, setHasShownCelebration] = useState(false)
     const [formData, setFormData] = useState({
         isAttending: null as boolean | null,
         plusOne: false,
@@ -60,6 +64,12 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                         notes: data.guest.notes || ''
                     }))
                     setIsSubmitted(true)
+
+                    // Zeige Konfetti, wenn bereits eine Antwort gegeben wurde
+                    if (data.guest.isAttending !== null && !hasShownCelebration) {
+                        setShowCelebration(true)
+                        setHasShownCelebration(true)
+                    }
                 }
             } else {
                 setError('Einladung nicht gefunden')
@@ -94,6 +104,15 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
             if (response.ok) {
                 setIsSubmitted(true)
                 setError('')
+
+                // Starte Konfetti-Animation für alle Antworten
+                setShowCelebration(true)
+                setHasShownCelebration(true)
+
+                // Stoppe die Konfetti-Animation nach 5 Sekunden
+                setTimeout(() => {
+                    setShowCelebration(false)
+                }, 5000)
             } else {
                 const data = await response.json()
                 setError(data.error || 'Fehler beim Speichern')
@@ -135,13 +154,50 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
     return (
         <div style={{
             minHeight: '100vh',
-            background: invitation.backgroundColor || '#ffffff',
+            background: invitation.backgroundImage
+                ? invitation.backgroundColor || '#ffffff'
+                : 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%)',
             backgroundImage: invitation.backgroundImage ? `url(${invitation.backgroundImage})` : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: invitation.backgroundImage ? 'cover' : '400% 400%',
+            backgroundPosition: invitation.backgroundImage ? 'center' : '0% 50%',
+            animation: invitation.backgroundImage ? 'none' : 'gradientShift 8s ease infinite',
+            position: 'relative',
+            overflow: 'hidden',
             padding: '2rem'
-        }}>
-            <div className="container" style={{ maxWidth: '600px', margin: '0 auto' }}>
+        }}
+            className={!invitation.backgroundImage ? 'animated-gradient' : ''}
+        >
+            {/* Konfetti nur anzeigen, wenn kein Hintergrundbild gesetzt ist */}
+            {!invitation.backgroundImage && <Confetti />}
+
+            {/* Feier-Konfetti anzeigen, wenn der Gast antwortet */}
+            <CelebrationConfetti trigger={showCelebration} isAttending={formData.isAttending || false} />
+
+            {/* Party-Lichter nur anzeigen, wenn kein Hintergrundbild gesetzt ist */}
+            {!invitation.backgroundImage && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: `
+                        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)
+                    `,
+                    animation: 'lights 4s ease-in-out infinite alternate',
+                    pointerEvents: 'none'
+                }} />
+            )}
+
+            <div className="container" style={{
+                maxWidth: '600px',
+                margin: '0 auto',
+                position: 'relative',
+                zIndex: 2
+            }}>
                 <Card>
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                         <h1 style={{ marginBottom: '1rem' }}>{invitation.title}</h1>
@@ -179,9 +235,22 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                     {isSubmitted ? (
                         <div style={{ textAlign: 'center' }}>
                             <div className="alert alert--success">
-                                <h3>Vielen Dank für Ihre Antwort!</h3>
-                                <p>
-                                    {formData.isAttending ? 'Wir freuen uns auf Ihr Kommen!' : 'Schade, dass Sie nicht kommen können.'}
+                                <h3 style={{
+                                    fontSize: '1.5rem',
+                                    marginBottom: '1rem',
+                                    background: formData.isAttending
+                                        ? 'linear-gradient(135deg, #FF6B6B, #4ECDC4)'
+                                        : 'inherit',
+                                    WebkitBackgroundClip: formData.isAttending ? 'text' : 'inherit',
+                                    WebkitTextFillColor: formData.isAttending ? 'transparent' : 'inherit'
+                                }}>
+                                    {formData.isAttending ? '🎉 Vielen Dank für Ihre Zusage! 🎉' : 'Vielen Dank für Ihre Antwort!'}
+                                </h3>
+                                <p style={{ fontSize: '1.1rem' }}>
+                                    {formData.isAttending
+                                        ? 'Wir freuen uns riesig auf Ihr Kommen! Es wird eine fantastische Party! 🎊'
+                                        : 'Schade, dass Sie nicht kommen können. Wir werden Sie vermissen! 😔'
+                                    }
                                 </p>
                                 {formData.notes && (
                                     <p style={{ marginTop: '1rem' }}>
@@ -266,6 +335,8 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                     )}
                 </Card>
             </div>
+
+
         </div>
     )
 }

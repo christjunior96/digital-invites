@@ -41,6 +41,103 @@ a {
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
+// Animationen
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes lights {
+    0% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes cardFloat {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+// Explizite Klasse für animierten Gradient
+.animated-gradient {
+    background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%) !important;
+    background-size: 400% 400% !important;
+    background-position: 0% 50% !important;
+    animation: gradientShift 8s ease infinite !important;
+}
+
 // Utility Classes
 .container {
     max-width: 1200px;
@@ -66,40 +163,52 @@ a {
     }
 
     &--primary {
-        background-color: var(--primary-color);
+        background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
         color: white;
+        border: none;
 
         &:hover:not(:disabled) {
-            background-color: var(--primary-hover);
+            background: linear-gradient(135deg, #FF5252, #26A69A);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
         }
     }
 
     &--secondary {
-        background-color: var(--secondary-color);
+        background: linear-gradient(135deg, #45B7D1, #96CEB4);
         color: white;
+        border: none;
 
         &:hover:not(:disabled) {
-            background-color: #475569;
+            background: linear-gradient(135deg, #3AA8C4, #7FB89A);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(69, 183, 209, 0.3);
         }
     }
 
     &--outline {
         background-color: transparent;
-        color: var(--primary-color);
-        border: 1px solid var(--primary-color);
+        color: #FF6B6B;
+        border: 1px solid #FF6B6B;
 
         &:hover:not(:disabled) {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
             color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
         }
     }
 
     &--danger {
-        background-color: var(--error-color);
+        background: linear-gradient(135deg, #FF5252, #FF1744);
         color: white;
+        border: none;
 
         &:hover:not(:disabled) {
-            background-color: #dc2626;
+            background: linear-gradient(135deg, #FF1744, #D50000);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 23, 68, 0.3);
         }
     }
 }

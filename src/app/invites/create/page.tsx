@@ -23,6 +23,8 @@ export default function CreateInvitationPage() {
         backgroundColor: '#ffffff',
         contactInfo: ''
     })
+    const [selectedImage, setSelectedImage] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string>('')
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -34,18 +36,57 @@ export default function CreateInvitationPage() {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setSelectedImage(file)
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setImagePreview(e.target?.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const uploadImage = async (file: File): Promise<string> => {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData
+        })
+
+        if (!response.ok) {
+            throw new Error('Fehler beim Hochladen des Bildes')
+        }
+
+        const data = await response.json()
+        return data.imageUrl
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
         setError('')
 
         try {
+            let backgroundImageUrl = ''
+
+            // Bild hochladen, falls ausgewählt
+            if (selectedImage) {
+                backgroundImageUrl = await uploadImage(selectedImage)
+            }
+
             const response = await fetch('/api/invitations', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    backgroundImage: backgroundImageUrl
+                })
             })
 
             if (response.ok) {
@@ -55,7 +96,8 @@ export default function CreateInvitationPage() {
                 const data = await response.json()
                 setError(data.error || 'Fehler beim Erstellen der Einladung')
             }
-        } catch {
+        } catch (error) {
+            console.error('Fehler beim Erstellen:', error)
             setError('Ein Fehler ist aufgetreten')
         } finally {
             setIsLoading(false)
@@ -140,41 +182,68 @@ export default function CreateInvitationPage() {
                                 placeholder="Weitere Details zur Veranstaltung..."
                             />
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div className="form-group">
-                                    <label>Hintergrundfarbe</label>
-                                    <input
-                                        type="color"
-                                        value={formData.backgroundColor}
-                                        onChange={(e) => handleChange('backgroundColor', e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            height: '50px',
-                                            border: '1px solid var(--border-color)',
-                                            borderRadius: '0.5rem',
-                                            cursor: 'pointer'
-                                        }}
-                                    />
-                                </div>
+                            <div>
+                                <label style={{
+                                    display: 'block',
+                                    marginBottom: '0.5rem',
+                                    fontWeight: '500',
+                                    color: '#333'
+                                }}>
+                                    Hintergrundfarbe
+                                </label>
+                                <input
+                                    type="color"
+                                    value={formData.backgroundColor}
+                                    onChange={(e) => handleChange('backgroundColor', e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        height: '50px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                            </div>
 
-                                <div className="form-group">
-                                    <label>Vorschau</label>
-                                    <div
-                                        style={{
-                                            width: '100%',
-                                            height: '50px',
-                                            backgroundColor: formData.backgroundColor,
-                                            border: '1px solid var(--border-color)',
-                                            borderRadius: '0.5rem',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: formData.backgroundColor === '#ffffff' ? '#000' : '#fff'
-                                        }}
-                                    >
-                                        Vorschau
+                            <div>
+                                <label style={{
+                                    display: 'block',
+                                    marginBottom: '0.5rem',
+                                    fontWeight: '500',
+                                    color: '#333'
+                                }}>
+                                    Hintergrundbild (optional)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        border: '2px dashed #e5e7eb',
+                                        borderRadius: '10px',
+                                        background: '#f9fafb',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                                {imagePreview && (
+                                    <div style={{
+                                        marginTop: '1rem',
+                                        textAlign: 'center'
+                                    }}>
+                                        <img
+                                            src={imagePreview}
+                                            alt="Vorschau"
+                                            style={{
+                                                maxWidth: '100%',
+                                                maxHeight: '200px',
+                                                borderRadius: '10px',
+                                                border: '2px solid #e5e7eb'
+                                            }}
+                                        />
                                     </div>
-                                </div>
+                                )}
                             </div>
 
                             <Textarea
