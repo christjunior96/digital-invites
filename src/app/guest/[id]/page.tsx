@@ -5,6 +5,7 @@ import { use, useCallback } from 'react'
 import { Card } from '@/components/atoms/Card'
 import { Confetti } from '@/components/atoms/Confetti'
 import { CelebrationConfetti } from '@/components/atoms/CelebrationConfetti'
+import { CalendarButton } from '@/components/atoms/CalendarButton'
 
 interface Guest {
     id: string
@@ -300,6 +301,17 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                         </a>
                                     )}
                                 </div>
+                            )}
+
+                            {/* Kalender-Button nur anzeigen, wenn der Gast zugesagt hat */}
+                            {formData.isAttending && (
+                                <CalendarButton
+                                    title={invitation.title}
+                                    date={invitation.date}
+                                    time={invitation.time}
+                                    address={invitation.address}
+                                    description={invitation.description}
+                                />
                             )}
                         </div>
                     ) : (
