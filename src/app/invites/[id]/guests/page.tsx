@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { use } from 'react'
 import { Button } from '@/components/atoms/Button'
 import { Input } from '@/components/atoms/Input'
@@ -50,9 +50,9 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
         } else if (status === 'authenticated') {
             fetchInvitation()
         }
-    }, [status, router, id])
+    }, [status, router, id, fetchInvitation])
 
-    const fetchInvitation = async () => {
+    const fetchInvitation = useCallback(async () => {
         try {
             const response = await fetch(`/api/invitations/${id}`)
             if (response.ok) {
@@ -60,12 +60,12 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                 setInvitation(data)
                 setGuests(data.guests)
             }
-        } catch (error) {
-            console.error('Fehler beim Laden der Einladung:', error)
+        } catch {
+            console.error('Fehler beim Laden der Einladung')
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [id])
 
     const handleAddGuest = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -88,7 +88,7 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                 const data = await response.json()
                 setError(data.error || 'Fehler beim Hinzufügen des Gasts')
             }
-        } catch (error) {
+        } catch {
             setError('Ein Fehler ist aufgetreten')
         }
     }
@@ -104,7 +104,7 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
             if (response.ok) {
                 setGuests(prev => prev.filter(g => g.id !== guestId))
             }
-        } catch (error) {
+        } catch {
             setError('Fehler beim Löschen des Gasts')
         }
     }

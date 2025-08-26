@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     const missingVars = Object.entries(envVars)
-        .filter(([key, value]) => !value || value === '❌ Missing')
+        .filter(([, value]) => !value || value === '❌ Missing')
         .map(([key]) => key)
 
     return NextResponse.json({

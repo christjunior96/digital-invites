@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Benutzer mit Supabase Auth erstellen
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
             email,
             password,
             options: {

@@ -55,7 +55,7 @@ export default function CreateInvitationPage() {
                 const data = await response.json()
                 setError(data.error || 'Fehler beim Erstellen der Einladung')
             }
-        } catch (error) {
+        } catch {
             setError('Ein Fehler ist aufgetreten')
         } finally {
             setIsLoading(false)

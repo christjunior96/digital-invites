@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 
 export default function EnvCheckPage() {
-    const [serverEnvData, setServerEnvData] = useState<any>(null)
+    const [serverEnvData, setServerEnvData] = useState<Record<string, string | undefined> | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -15,7 +15,7 @@ export default function EnvCheckPage() {
     }
 
     const missingClientVars = Object.entries(clientEnvVars)
-        .filter(([key, value]) => !value)
+        .filter(([, value]) => !value)
         .map(([key]) => key)
 
     const checkServerEnv = async () => {
@@ -25,7 +25,7 @@ export default function EnvCheckPage() {
             const response = await fetch('/api/env-check')
             const data = await response.json()
             setServerEnvData(data)
-        } catch (err) {
+        } catch {
             setError('Fehler beim Abrufen der serverseitigen Variablen')
         } finally {
             setLoading(false)

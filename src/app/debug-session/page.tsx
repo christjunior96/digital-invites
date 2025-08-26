@@ -116,9 +116,9 @@ export default function DebugSessionPage() {
             <div style={{ marginTop: '2rem' }}>
                 <h3>Nächste Schritte:</h3>
                 <ul>
-                    <li>Wenn Status "authenticated" ist, sollten Sie zum Dashboard weitergeleitet werden</li>
-                    <li>Wenn Status "unauthenticated" ist, gehen Sie zur Login-Seite</li>
-                    <li>Wenn Status "loading" bleibt, gibt es ein Problem mit der Session-Initialisierung</li>
+                    <li>Wenn Status &quot;authenticated&quot; ist, sollten Sie zum Dashboard weitergeleitet werden</li>
+                    <li>Wenn Status &quot;unauthenticated&quot; ist, gehen Sie zur Login-Seite</li>
+                    <li>Wenn Status &quot;loading&quot; bleibt, gibt es ein Problem mit der Session-Initialisierung</li>
                 </ul>
             </div>
         </div>

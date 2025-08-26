@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { use } from 'react'
+import { use, useCallback } from 'react'
 import { Button } from '@/components/atoms/Button'
-import { Input } from '@/components/atoms/Input'
+
 import { Textarea } from '@/components/atoms/Textarea'
 import { Card } from '@/components/atoms/Card'
 
@@ -45,9 +45,9 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
 
     useEffect(() => {
         fetchGuestData()
-    }, [id])
+    }, [id, fetchGuestData])
 
-    const fetchGuestData = async () => {
+    const fetchGuestData = useCallback(async () => {
         try {
             const response = await fetch(`/api/guest/${id}`)
             if (response.ok) {
@@ -68,12 +68,12 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
             } else {
                 setError('Einladung nicht gefunden')
             }
-        } catch (error) {
+        } catch {
             setError('Ein Fehler ist aufgetreten')
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [id])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -98,7 +98,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                 const data = await response.json()
                 setError(data.error || 'Fehler beim Speichern')
             }
-        } catch (error) {
+        } catch {
             setError('Ein Fehler ist aufgetreten')
         }
     }

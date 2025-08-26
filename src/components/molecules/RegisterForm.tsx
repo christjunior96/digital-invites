@@ -54,7 +54,7 @@ export function RegisterForm() {
                 const data = await response.json()
                 setError(data.error || 'Registrierung fehlgeschlagen')
             }
-        } catch (error) {
+        } catch {
             setError('Ein Fehler ist aufgetreten')
         } finally {
             setIsLoading(false)
