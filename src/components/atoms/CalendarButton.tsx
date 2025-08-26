@@ -39,17 +39,24 @@ export function CalendarButton({ title, date, time, address, description }: Cale
 
     const downloadICSFile = () => {
         const { start, end } = formatDateForCalendar(date, time)
-        const eventDetails = `${title}\n\n${description || ''}\n\nAdresse: ${address}`
 
+        // Beschreibung ohne Adresse (da diese separat im LOCATION Feld steht)
+        const eventDescription = description ? description : ''
+
+        // ICS-Datei mit korrekter Formatierung
         const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
+PRODID:-//Digital Invites//Calendar Event//DE
 BEGIN:VEVENT
-URL:${document.URL}
+UID:${Date.now()}@digital-invites.com
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
 DTSTART:${start}
 DTEND:${end}
-SUMMARY:${title}
-DESCRIPTION:${eventDetails}
-LOCATION:${address}
+SUMMARY:${title.replace(/\n/g, '\\n')}
+DESCRIPTION:${eventDescription.replace(/\n/g, '\\n')}
+LOCATION:${address.replace(/\n/g, '\\n')}
+STATUS:CONFIRMED
+SEQUENCE:0
 END:VEVENT
 END:VCALENDAR`
 
