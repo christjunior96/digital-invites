@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Invitation {
+  id          String   @id @default(cuid())
+  title       String
+  address     String
+  date        DateTime
+  time        String
+  description String?
+  backgroundImage String?
+  backgroundColor String?
+  contactInfo String?
+  
+  // Beziehungen
+  userId      String   // Supabase User ID
+  guests      Guest[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Guest {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  isCouple    Boolean  @default(false)
+  plusOne     Boolean? // null für Paare, true/false für Einzelpersonen
+  isAttending Boolean?
+  notes       String?
+  
+  // Beziehungen
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
