@@ -27,6 +27,8 @@ interface Invitation {
     backgroundImage?: string
     backgroundColor?: string
     contactInfo?: string
+    spotifyPlaylist?: string
+    photoUploadLink?: string
 }
 
 export default function GuestPage({ params }: { params: Promise<{ id: string }> }) {
@@ -272,6 +274,33 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                 <p style={{ marginTop: '1rem' }}>
                                     <strong>Ihre Anmerkung:</strong> {formData.notes}
                                 </p>
+                            )}
+
+                            {/* Links nur anzeigen, wenn der Gast zugesagt hat */}
+                            {formData.isAttending && (
+                                <div className="guest-links-section">
+                                    {invitation.spotifyPlaylist && (
+                                        <a
+                                            href={invitation.spotifyPlaylist}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="guest-link-button guest-spotify-button"
+                                        >
+                                            🎵 Spotify Playlist hören
+                                        </a>
+                                    )}
+
+                                    {invitation.photoUploadLink && (
+                                        <a
+                                            href={invitation.photoUploadLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="guest-link-button guest-photo-button"
+                                        >
+                                            📸 Fotos hochladen
+                                        </a>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ) : (

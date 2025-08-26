@@ -21,7 +21,9 @@ export default function CreateInvitationPage() {
         time: '',
         description: '',
         backgroundColor: '#ffffff',
-        contactInfo: ''
+        contactInfo: '',
+        spotifyPlaylist: '',
+        photoUploadLink: ''
     })
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string>('')
@@ -245,6 +247,22 @@ export default function CreateInvitationPage() {
                                     </div>
                                 )}
                             </div>
+
+                            <Input
+                                label="Spotify Playlist Link (optional)"
+                                value={formData.spotifyPlaylist}
+                                onChange={(e) => handleChange('spotifyPlaylist', e.target.value)}
+                                placeholder="https://open.spotify.com/playlist/..."
+                                type="text"
+                            />
+
+                            <Input
+                                label="Foto-Upload Link (optional)"
+                                value={formData.photoUploadLink}
+                                onChange={(e) => handleChange('photoUploadLink', e.target.value)}
+                                placeholder="https://example.com/upload oder Google Drive Link"
+                                type="text"
+                            />
 
                             <Textarea
                                 label="Kontaktinformationen (optional)"

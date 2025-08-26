@@ -41,7 +41,9 @@ export async function GET(
                 description: guest.invitation.description,
                 backgroundImage: guest.invitation.backgroundImage,
                 backgroundColor: guest.invitation.backgroundColor,
-                contactInfo: guest.invitation.contactInfo
+                contactInfo: guest.invitation.contactInfo,
+                spotifyPlaylist: guest.invitation.spotifyPlaylist,
+                photoUploadLink: guest.invitation.photoUploadLink
             }
         })
     } catch (error) {

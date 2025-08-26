@@ -84,7 +84,9 @@ export async function PUT(
             description,
             backgroundImage,
             backgroundColor,
-            contactInfo
+            contactInfo,
+            spotifyPlaylist,
+            photoUploadLink
         } = await request.json()
 
         // Validierung
@@ -104,7 +106,9 @@ export async function PUT(
             description,
             backgroundColor,
             contactInfo,
-            backgroundImage: backgroundImage === undefined || backgroundImage === null ? null : backgroundImage
+            backgroundImage: backgroundImage === undefined || backgroundImage === null ? null : backgroundImage,
+            spotifyPlaylist: spotifyPlaylist === undefined || spotifyPlaylist === null ? null : spotifyPlaylist,
+            photoUploadLink: photoUploadLink === undefined || photoUploadLink === null ? null : photoUploadLink
         }
 
         const updatedInvitation = await prisma.invitation.update({

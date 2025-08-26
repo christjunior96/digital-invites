@@ -63,7 +63,9 @@ export async function POST(request: NextRequest) {
             description,
             backgroundImage,
             backgroundColor,
-            contactInfo
+            contactInfo,
+            spotifyPlaylist,
+            photoUploadLink
         } = await request.json()
 
         // Validierung
@@ -84,6 +86,8 @@ export async function POST(request: NextRequest) {
                 backgroundImage,
                 backgroundColor,
                 contactInfo,
+                spotifyPlaylist,
+                photoUploadLink,
                 userId: session.user.id
             }
         })

@@ -23,6 +23,8 @@ model Invitation {
   backgroundImage String?
   backgroundColor String?
   contactInfo String?
+  spotifyPlaylist String?
+  photoUploadLink String?
   
   // Beziehungen
   userId      String   // Supabase User ID

@@ -19,6 +19,8 @@ interface Invitation {
     backgroundImage?: string
     backgroundColor?: string
     contactInfo?: string
+    spotifyPlaylist?: string
+    photoUploadLink?: string
 }
 
 export default function EditInvitationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,7 +38,9 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
         address: '',
         description: '',
         backgroundColor: '#ffffff',
-        contactInfo: ''
+        contactInfo: '',
+        spotifyPlaylist: '',
+        photoUploadLink: ''
     })
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string>('')
@@ -65,7 +69,9 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                     address: data.address,
                     description: data.description || '',
                     backgroundColor: data.backgroundColor || '#ffffff',
-                    contactInfo: data.contactInfo || ''
+                    contactInfo: data.contactInfo || '',
+                    spotifyPlaylist: data.spotifyPlaylist || '',
+                    photoUploadLink: data.photoUploadLink || ''
                 })
                 // Bild-States zurücksetzen
                 setSelectedImage(null)
@@ -408,6 +414,22 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                                     </div>
                                 )}
                             </div>
+
+                            <Input
+                                label="Spotify Playlist Link (optional)"
+                                value={formData.spotifyPlaylist}
+                                onChange={(e) => setFormData(prev => ({ ...prev, spotifyPlaylist: e.target.value }))}
+                                placeholder="https://open.spotify.com/playlist/..."
+                                type="text"
+                            />
+
+                            <Input
+                                label="Foto-Upload Link (optional)"
+                                value={formData.photoUploadLink}
+                                onChange={(e) => setFormData(prev => ({ ...prev, photoUploadLink: e.target.value }))}
+                                placeholder="https://example.com/upload oder Google Drive Link"
+                                type="text"
+                            />
 
                             <Textarea
                                 label="Kontaktinformationen (optional)"
