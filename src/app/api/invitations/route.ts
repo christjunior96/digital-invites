@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
             time,
             description,
             backgroundImage,
-            backgroundColor,
             contactInfo,
             spotifyPlaylist,
             photoUploadLink
@@ -84,7 +83,6 @@ export async function POST(request: NextRequest) {
                 time,
                 description,
                 backgroundImage,
-                backgroundColor,
                 contactInfo,
                 spotifyPlaylist,
                 photoUploadLink,

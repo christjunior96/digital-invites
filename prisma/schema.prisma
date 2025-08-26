@@ -21,7 +21,6 @@ model Invitation {
   time        String
   description String?
   backgroundImage String?
-  backgroundColor String?
   contactInfo String?
   spotifyPlaylist String?
   photoUploadLink String?

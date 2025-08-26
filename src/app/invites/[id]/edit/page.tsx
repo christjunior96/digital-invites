@@ -17,7 +17,6 @@ interface Invitation {
     address: string
     description?: string
     backgroundImage?: string
-    backgroundColor?: string
     contactInfo?: string
     spotifyPlaylist?: string
     photoUploadLink?: string
@@ -37,7 +36,6 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
         time: '',
         address: '',
         description: '',
-        backgroundColor: '#ffffff',
         contactInfo: '',
         spotifyPlaylist: '',
         photoUploadLink: ''
@@ -68,7 +66,6 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                     time: data.time,
                     address: data.address,
                     description: data.description || '',
-                    backgroundColor: data.backgroundColor || '#ffffff',
                     contactInfo: data.contactInfo || '',
                     spotifyPlaylist: data.spotifyPlaylist || '',
                     photoUploadLink: data.photoUploadLink || ''
@@ -333,28 +330,7 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                                 placeholder="Details zur Veranstaltung, Dresscode, etc."
                             />
 
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '0.5rem',
-                                    fontWeight: '500',
-                                    color: '#333'
-                                }}>
-                                    Hintergrundfarbe
-                                </label>
-                                <input
-                                    type="color"
-                                    value={formData.backgroundColor}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, backgroundColor: e.target.value }))}
-                                    style={{
-                                        width: '100%',
-                                        height: '50px',
-                                        border: '2px solid #e5e7eb',
-                                        borderRadius: '10px',
-                                        cursor: 'pointer'
-                                    }}
-                                />
-                            </div>
+
 
                             <div>
                                 <label style={{

@@ -20,7 +20,6 @@ export default function CreateInvitationPage() {
         date: '',
         time: '',
         description: '',
-        backgroundColor: '#ffffff',
         contactInfo: '',
         spotifyPlaylist: '',
         photoUploadLink: ''
@@ -184,28 +183,7 @@ export default function CreateInvitationPage() {
                                 placeholder="Weitere Details zur Veranstaltung..."
                             />
 
-                            <div>
-                                <label style={{
-                                    display: 'block',
-                                    marginBottom: '0.5rem',
-                                    fontWeight: '500',
-                                    color: '#333'
-                                }}>
-                                    Hintergrundfarbe
-                                </label>
-                                <input
-                                    type="color"
-                                    value={formData.backgroundColor}
-                                    onChange={(e) => handleChange('backgroundColor', e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        height: '50px',
-                                        border: '2px solid #e5e7eb',
-                                        borderRadius: '10px',
-                                        cursor: 'pointer'
-                                    }}
-                                />
-                            </div>
+
 
                             <div>
                                 <label style={{

@@ -25,7 +25,6 @@ interface Invitation {
     address: string
     description?: string
     backgroundImage?: string
-    backgroundColor?: string
     contactInfo?: string
     spotifyPlaylist?: string
     photoUploadLink?: string

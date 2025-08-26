@@ -83,7 +83,6 @@ export async function PUT(
             address,
             description,
             backgroundImage,
-            backgroundColor,
             contactInfo,
             spotifyPlaylist,
             photoUploadLink
@@ -104,7 +103,6 @@ export async function PUT(
             time,
             address,
             description,
-            backgroundColor,
             contactInfo,
             backgroundImage: backgroundImage === undefined || backgroundImage === null ? null : backgroundImage,
             spotifyPlaylist: spotifyPlaylist === undefined || spotifyPlaylist === null ? null : spotifyPlaylist,
