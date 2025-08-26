@@ -21,6 +21,7 @@ interface Guest {
     name: string
     isAttending: boolean | null
     isCouple: boolean
+    plusOne?: boolean
 }
 
 export default function DashboardPage() {
@@ -28,6 +29,35 @@ export default function DashboardPage() {
     const router = useRouter()
     const [invitations, setInvitations] = useState<Invitation[]>([])
     const [isLoading, setIsLoading] = useState(true)
+
+    // Funktion zur Berechnung der Personenanzahl
+    const calculatePersonCount = (guests: Guest[]) => {
+        return guests.reduce((total, guest) => {
+            if (guest.isCouple) {
+                return total + 2 // Paare zählen als 2 Personen
+            } else if (guest.plusOne) {
+                return total + 2 // Einzelpersonen mit +1 zählen als 2 Personen
+            } else {
+                return total + 1 // Einzelpersonen zählen als 1 Person
+            }
+        }, 0)
+    }
+
+    // Funktion zur Berechnung der Personenanzahl der Zusagen
+    const calculateAttendingPersonCount = (guests: Guest[]) => {
+        return guests.reduce((total, guest) => {
+            if (guest.isAttending === true) {
+                if (guest.isCouple) {
+                    return total + 2 // Paare zählen als 2 Personen
+                } else if (guest.plusOne) {
+                    return total + 2 // Einzelpersonen mit +1 zählen als 2 Personen
+                } else {
+                    return total + 1 // Einzelpersonen zählen als 1 Person
+                }
+            }
+            return total
+        }, 0)
+    }
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -148,6 +178,19 @@ export default function DashboardPage() {
                                 {invitations.reduce((total, inv) => total + inv.guests.length, 0)}
                             </h3>
                             <p style={{ margin: 0, color: '#666' }}>Gäste insgesamt</p>
+                        </Card>
+
+                        <Card style={{
+                            textAlign: 'center',
+                            padding: '2rem',
+                            background: 'rgba(255, 255, 255, 0.9)',
+                            border: '2px solid rgba(255, 193, 7, 0.2)'
+                        }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👤</div>
+                            <h3 style={{ margin: '0 0 0.5rem 0', color: '#FFC107' }}>
+                                {invitations.reduce((total, inv) => total + calculatePersonCount(inv.guests), 0)}
+                            </h3>
+                            <p style={{ margin: 0, color: '#666' }}>Personen insgesamt</p>
                         </Card>
 
                         <Card style={{
@@ -275,7 +318,7 @@ export default function DashboardPage() {
                                 <div className="dashboard-invitation-stats">
                                     <span className="dashboard-invitation-stat dashboard-invitation-stat-attending">
                                         <span>✅</span>
-                                        Zusagen: {invitation.guests.filter(g => g.isAttending === true).length}
+                                        Zusagen: {invitation.guests.filter(g => g.isAttending === true).length} ({calculateAttendingPersonCount(invitation.guests)} Personen)
                                     </span>
                                     <span className="dashboard-invitation-stat dashboard-invitation-stat-declined">
                                         <span>❌</span>

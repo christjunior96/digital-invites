@@ -25,7 +25,8 @@ export async function GET() {
                         id: true,
                         name: true,
                         isAttending: true,
-                        isCouple: true
+                        isCouple: true,
+                        plusOne: true
                     }
                 }
             },
