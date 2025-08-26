@@ -96,38 +96,74 @@ END:VCALENDAR`
             </button>
 
             {showCalendarOptions && (
-                <div className="calendar-options">
-                    <button
-                        className="calendar-option-button calendar-google"
-                        onClick={() => window.open(createGoogleCalendarUrl(), '_blank')}
-                    >
-                        <span>📱</span>
-                        Google Kalender
-                    </button>
+                <div className="calendar-overlay" onClick={() => setShowCalendarOptions(false)}>
+                    <div className="calendar-options" onClick={(e) => e.stopPropagation()}>
+                        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                            <h3 style={{ margin: '0 0 0.5rem 0', color: '#333', fontSize: '1.2rem' }}>
+                                Kalender auswählen
+                            </h3>
+                            <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>
+                                Wählen Sie Ihren bevorzugten Kalender
+                            </p>
+                        </div>
+                        
+                        <button
+                            className="calendar-option-button calendar-google"
+                            onClick={() => {
+                                window.open(createGoogleCalendarUrl(), '_blank')
+                                setShowCalendarOptions(false)
+                            }}
+                        >
+                            <span>📱</span>
+                            Google Kalender
+                        </button>
 
-                    <button
-                        className="calendar-option-button calendar-outlook"
-                        onClick={() => window.open(createOutlookCalendarUrl(), '_blank')}
-                    >
-                        <span>💻</span>
-                        Outlook
-                    </button>
+                        <button
+                            className="calendar-option-button calendar-outlook"
+                            onClick={() => {
+                                window.open(createOutlookCalendarUrl(), '_blank')
+                                setShowCalendarOptions(false)
+                            }}
+                        >
+                            <span>💻</span>
+                            Outlook
+                        </button>
 
-                    <button
-                        className="calendar-option-button calendar-apple"
-                        onClick={() => window.open(createAppleCalendarUrl(), '_blank')}
-                    >
-                        <span>🍎</span>
-                        Apple Kalender
-                    </button>
+                        <button
+                            className="calendar-option-button calendar-apple"
+                            onClick={() => {
+                                window.open(createAppleCalendarUrl(), '_blank')
+                                setShowCalendarOptions(false)
+                            }}
+                        >
+                            <span>🍎</span>
+                            Apple Kalender
+                        </button>
 
-                    <button
-                        className="calendar-option-button calendar-download"
-                        onClick={downloadICSFile}
-                    >
-                        <span>📥</span>
-                        ICS-Datei herunterladen
-                    </button>
+                        <button
+                            className="calendar-option-button calendar-download"
+                            onClick={() => {
+                                downloadICSFile()
+                                setShowCalendarOptions(false)
+                            }}
+                        >
+                            <span>📥</span>
+                            ICS-Datei herunterladen
+                        </button>
+                        
+                        <button
+                            className="calendar-option-button"
+                            onClick={() => setShowCalendarOptions(false)}
+                            style={{ 
+                                background: '#f3f4f6', 
+                                color: '#666',
+                                marginTop: '0.5rem'
+                            }}
+                        >
+                            <span>❌</span>
+                            Abbrechen
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
