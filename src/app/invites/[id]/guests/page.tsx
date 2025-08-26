@@ -44,14 +44,6 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
         isCouple: false
     })
 
-    useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/login')
-        } else if (status === 'authenticated') {
-            fetchInvitation()
-        }
-    }, [status, router, id, fetchInvitation])
-
     const fetchInvitation = useCallback(async () => {
         try {
             const response = await fetch(`/api/invitations/${id}`)
@@ -66,6 +58,14 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
             setIsLoading(false)
         }
     }, [id])
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/login')
+        } else if (status === 'authenticated') {
+            fetchInvitation()
+        }
+    }, [status, router, fetchInvitation])
 
     const handleAddGuest = async (e: React.FormEvent) => {
         e.preventDefault()

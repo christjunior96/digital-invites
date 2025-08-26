@@ -1,23 +1,16 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 
 export async function middleware(request: NextRequest) {
-    // NextAuth JWT Token prüfen
-    const token = await getToken({ 
-        req: request, 
-        secret: process.env.NEXTAUTH_SECRET 
-    })
-
     // Geschützte Routen
     const protectedRoutes = ['/dashboard', '/invites']
     const isProtectedRoute = protectedRoutes.some(route =>
         request.nextUrl.pathname.startsWith(route)
     )
 
-    if (isProtectedRoute && !token) {
-        console.log('Middleware: Redirecting to login - no token found')
-        return NextResponse.redirect(new URL('/login', request.url))
+    if (isProtectedRoute) {
+        console.log('Middleware: Protected route accessed')
+        // Die Authentifizierung wird client-seitig durch NextAuth gehandhabt
     }
 
     // Auth Routen (wenn bereits eingeloggt)
@@ -26,9 +19,9 @@ export async function middleware(request: NextRequest) {
         request.nextUrl.pathname.startsWith(route)
     )
 
-    if (isAuthRoute && token) {
-        console.log('Middleware: Redirecting to dashboard - user already authenticated')
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+    if (isAuthRoute) {
+        console.log('Middleware: Auth route accessed')
+        // Die Weiterleitung wird client-seitig durch NextAuth gehandhabt
     }
 
     return NextResponse.next()

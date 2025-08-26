@@ -43,10 +43,6 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
         notes: ''
     })
 
-    useEffect(() => {
-        fetchGuestData()
-    }, [id, fetchGuestData])
-
     const fetchGuestData = useCallback(async () => {
         try {
             const response = await fetch(`/api/guest/${id}`)
@@ -74,6 +70,10 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
             setIsLoading(false)
         }
     }, [id])
+
+    useEffect(() => {
+        fetchGuestData()
+    }, [fetchGuestData])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

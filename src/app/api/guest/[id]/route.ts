@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params
         const guest = await prisma.guest.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 invitation: true
             }
@@ -54,9 +55,10 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params
         const { isAttending, plusOne, notes } = await request.json()
 
         if (isAttending === null) {
@@ -67,7 +69,7 @@ export async function PUT(
         }
 
         const guest = await prisma.guest.update({
-            where: { id: params.id },
+            where: { id },
             data: {
                 isAttending,
                 plusOne: plusOne || false,
