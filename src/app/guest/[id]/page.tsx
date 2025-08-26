@@ -85,6 +85,80 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
         fetchGuestData()
     }, [fetchGuestData])
 
+    // Setze Hintergrund auf body
+    useEffect(() => {
+        if (invitation) {
+            if (invitation.backgroundImage) {
+                // Hintergrundbild auf body setzen
+                document.body.style.background = `url(${invitation.backgroundImage})`
+                document.body.style.backgroundSize = 'cover'
+                document.body.style.backgroundPosition = 'center'
+                document.body.style.backgroundAttachment = 'fixed'
+                document.body.style.backgroundRepeat = 'no-repeat'
+                document.body.style.animation = 'none'
+                document.body.className = document.body.className.replace('animated-gradient', '')
+            } else {
+                // Animierter Gradient auf body setzen
+                document.body.style.background = 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%)'
+                document.body.style.backgroundSize = '400% 400%'
+                document.body.style.backgroundPosition = '0% 50%'
+                document.body.style.backgroundAttachment = 'fixed'
+                document.body.style.backgroundRepeat = 'no-repeat'
+                document.body.style.animation = 'gradientShift 8s ease infinite'
+                document.body.className = document.body.className + ' animated-gradient'
+            }
+
+            // Party-Lights auf body setzen (nur wenn kein Hintergrundbild)
+            if (!invitation.backgroundImage) {
+                // Erstelle Party-Lights Element
+                let partyLights = document.getElementById('party-lights')
+                if (!partyLights) {
+                    partyLights = document.createElement('div')
+                    partyLights.id = 'party-lights'
+                    partyLights.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: 
+                            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                            radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                            radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+                        animation: lights 4s ease-in-out infinite alternate;
+                        pointer-events: none;
+                        z-index: 1;
+                    `
+                    document.body.appendChild(partyLights)
+                }
+            } else {
+                // Entferne Party-Lights wenn Hintergrundbild gesetzt ist
+                const partyLights = document.getElementById('party-lights')
+                if (partyLights) {
+                    partyLights.remove()
+                }
+            }
+        }
+
+        // Cleanup beim Verlassen der Komponente
+        return () => {
+            document.body.style.background = ''
+            document.body.style.backgroundSize = ''
+            document.body.style.backgroundPosition = ''
+            document.body.style.backgroundAttachment = ''
+            document.body.style.backgroundRepeat = ''
+            document.body.style.animation = ''
+            document.body.className = document.body.className.replace('animated-gradient', '')
+
+            // Entferne Party-Lights
+            const partyLights = document.getElementById('party-lights')
+            if (partyLights) {
+                partyLights.remove()
+            }
+        }
+    }, [invitation])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (formData.isAttending === null) {
@@ -154,43 +228,17 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
     return (
         <div style={{
             minHeight: '100vh',
-            background: invitation.backgroundImage
-                ? invitation.backgroundColor || '#ffffff'
-                : 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%)',
-            backgroundImage: invitation.backgroundImage ? `url(${invitation.backgroundImage})` : 'none',
-            backgroundSize: invitation.backgroundImage ? 'cover' : '400% 400%',
-            backgroundPosition: invitation.backgroundImage ? 'center' : '0% 50%',
-            animation: invitation.backgroundImage ? 'none' : 'gradientShift 8s ease infinite',
             position: 'relative',
             overflow: 'hidden',
             padding: '2rem'
-        }}
-            className={!invitation.backgroundImage ? 'animated-gradient' : ''}
-        >
+        }}>
             {/* Konfetti nur anzeigen, wenn kein Hintergrundbild gesetzt ist */}
             {!invitation.backgroundImage && <Confetti />}
 
             {/* Feier-Konfetti anzeigen, wenn der Gast antwortet */}
             <CelebrationConfetti trigger={showCelebration} isAttending={formData.isAttending || false} />
 
-            {/* Party-Lichter nur anzeigen, wenn kein Hintergrundbild gesetzt ist */}
-            {!invitation.backgroundImage && (
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: `
-                        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)
-                    `,
-                    animation: 'lights 4s ease-in-out infinite alternate',
-                    pointerEvents: 'none'
-                }} />
-            )}
+
 
             <div className="container" style={{
                 maxWidth: '600px',
