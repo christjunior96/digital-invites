@@ -35,29 +35,7 @@ export function CalendarButton({ title, date, time, address, description }: Cale
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(eventDetails)}&location=${encodeURIComponent(address)}`
     }
 
-    const createOutlookCalendarUrl = () => {
-        const { start, end } = formatDateForCalendar(date, time)
-        const eventDetails = `${title}\n\n${description || ''}\n\nAdresse: ${address}`
 
-        return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(title)}&startdt=${start}&enddt=${end}&body=${encodeURIComponent(eventDetails)}&location=${encodeURIComponent(address)}`
-    }
-
-    const createAppleCalendarUrl = () => {
-        const { start, end } = formatDateForCalendar(date, time)
-        const eventDetails = `${title}\n\n${description || ''}\n\nAdresse: ${address}`
-
-        return `data:text/calendar;charset=utf8,BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-URL:${document.URL}
-DTSTART:${start}
-DTEND:${end}
-SUMMARY:${title}
-DESCRIPTION:${eventDetails}
-LOCATION:${address}
-END:VEVENT
-END:VCALENDAR`
-    }
 
     const downloadICSFile = () => {
         const { start, end } = formatDateForCalendar(date, time)
@@ -116,28 +94,6 @@ END:VCALENDAR`
                         >
                             <span>📱</span>
                             Google Kalender
-                        </button>
-
-                        <button
-                            className="calendar-option-button calendar-outlook"
-                            onClick={() => {
-                                window.open(createOutlookCalendarUrl(), '_blank')
-                                setShowCalendarOptions(false)
-                            }}
-                        >
-                            <span>💻</span>
-                            Outlook
-                        </button>
-
-                        <button
-                            className="calendar-option-button calendar-apple"
-                            onClick={() => {
-                                window.open(createAppleCalendarUrl(), '_blank')
-                                setShowCalendarOptions(false)
-                            }}
-                        >
-                            <span>🍎</span>
-                            Apple Kalender
                         </button>
 
                         <button
