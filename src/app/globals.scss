@@ -144,6 +144,10 @@ a {
     position: relative;
     overflow: hidden;
     padding: 1rem;
+
+    h3 {
+        text-align: center;
+    }
 }
 
 .guest-loading {
@@ -341,6 +345,7 @@ a {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-align: center;
 }
 
 .guest-success-text {
