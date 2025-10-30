@@ -1,5 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { supabase } from './supabase'
+import { prisma } from './prisma'
+import bcrypt from 'bcryptjs'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
@@ -18,29 +19,20 @@ export const authOptions = {
                 }
 
                 try {
-                    console.log('Attempting Supabase auth for:', credentials.email)
-
-                    const { data, error } = await supabase.auth.signInWithPassword({
-                        email: credentials.email,
-                        password: credentials.password
-                    })
-
-                    if (error) {
-                        console.error('Supabase auth error:', error.message)
+                    const user = await prisma.user.findUnique({ where: { email: credentials.email } })
+                    if (!user) {
                         return null
                     }
 
-                    if (!data.user) {
-                        console.log('No user returned from Supabase')
+                    const valid = await bcrypt.compare(credentials.password, user.passwordHash)
+                    if (!valid) {
                         return null
                     }
-
-                    console.log('Auth successful for user:', data.user.email)
 
                     return {
-                        id: data.user.id,
-                        email: data.user.email,
-                        name: data.user.user_metadata?.name || data.user.email
+                        id: user.id,
+                        email: user.email,
+                        name: user.name ?? user.email
                     }
                 } catch (error) {
                     console.error('Unexpected auth error:', error)

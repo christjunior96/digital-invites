@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { getSupabaseAdmin } from '@/lib/supabase'
 import { Session } from 'next-auth'
+import { put } from '@vercel/blob'
 
 export async function POST(request: NextRequest) {
     try {
@@ -44,56 +44,38 @@ export async function POST(request: NextRequest) {
         // Eindeutigen Dateinamen erstellen
         const timestamp = Date.now()
         const randomString = Math.random().toString(36).substring(2, 15)
-        const fileExtension = file.name.split('.').pop()
+        const inferredExt = file.type.startsWith('image/')
+            ? (file.type.split('/')[1] || 'jpg')
+            : 'bin'
+        const originalExt = file.name.includes('.') ? file.name.split('.').pop() : undefined
+        const fileExtension = (originalExt || inferredExt).toLowerCase()
         const fileName = `${session.user.id}/${timestamp}-${randomString}.${fileExtension}`
 
-        // Admin-Client für Server-seitige Operationen verwenden
-        const supabaseAdmin = getSupabaseAdmin()
-
-        // Bucket erstellen, falls er nicht existiert
-        const { data: buckets } = await supabaseAdmin.storage.listBuckets()
-        const bucketExists = buckets?.some(bucket => bucket.name === 'invitation-images')
-
-        if (!bucketExists) {
-            const { error: createError } = await supabaseAdmin.storage.createBucket('invitation-images', {
-                public: true,
-                allowedMimeTypes: ['image/*'],
-                fileSizeLimit: 5242880 // 5MB
-            })
-
-            if (createError) {
-                console.error('Bucket creation error:', createError)
-                return NextResponse.json(
-                    { error: 'Fehler beim Erstellen des Storage-Buckets' },
-                    { status: 500 }
-                )
-            }
-        }
-
-        // Datei zu Supabase Storage hochladen
-        const { error } = await supabaseAdmin.storage
-            .from('invitation-images')
-            .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false
-            })
-
-        if (error) {
-            console.error('Supabase upload error:', error)
+        if (!process.env.storage_READ_WRITE_TOKEN) {
             return NextResponse.json(
-                { error: 'Fehler beim Hochladen des Bildes' },
+                { error: 'Storage-Token fehlt (storage_READ_WRITE_TOKEN)' },
                 { status: 500 }
             )
         }
 
-        // Öffentliche URL generieren
-        const { data: urlData } = supabaseAdmin.storage
-            .from('invitation-images')
-            .getPublicUrl(fileName)
+        let blob
+        try {
+            blob = await put(fileName, file, {
+                access: 'public',
+                token: process.env.storage_READ_WRITE_TOKEN,
+                contentType: file.type || 'application/octet-stream'
+            })
+        } catch (e) {
+            console.error('Blob upload failed:', e)
+            return NextResponse.json(
+                { error: 'Fehler beim Hochladen des Bildes', details: e instanceof Error ? e.message : String(e) },
+                { status: 500 }
+            )
+        }
 
         return NextResponse.json({
-            imageUrl: urlData.publicUrl,
-            fileName: fileName
+            imageUrl: blob.url,
+            fileName
         })
 
     } catch (error) {

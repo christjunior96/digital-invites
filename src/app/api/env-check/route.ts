@@ -10,7 +10,8 @@ export async function GET() {
         // Server-seitig verfügbar
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing',
         DATABASE_URL: process.env.DATABASE_URL ? '✅ Set' : '❌ Missing',
-        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? '✅ Set' : '❌ Missing'
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? '✅ Set' : '❌ Missing',
+        storage_READ_WRITE_TOKEN: process.env.storage_READ_WRITE_TOKEN ? '✅ Set' : '❌ Missing'
     }
 
     const missingVars = Object.entries(envVars)

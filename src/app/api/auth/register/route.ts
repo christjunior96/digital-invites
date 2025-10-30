@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { prisma } from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,33 +21,28 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Benutzer mit Supabase Auth erstellen
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    name,
-                    contact_info: contactInfo
-                }
-            }
-        })
-
-        if (error) {
-            if (error.message.includes('already registered')) {
-                return NextResponse.json(
-                    { error: 'Ein Benutzer mit dieser E-Mail existiert bereits' },
-                    { status: 400 }
-                )
-            }
+        // Existenz prüfen
+        const existing = await prisma.user.findUnique({ where: { email } })
+        if (existing) {
             return NextResponse.json(
-                { error: error.message },
+                { error: 'Ein Benutzer mit dieser E-Mail existiert bereits' },
                 { status: 400 }
             )
         }
 
+        const passwordHash = await bcrypt.hash(password, 10)
+
+        await prisma.user.create({
+            data: {
+                email,
+                name,
+                contactInfo: contactInfo ?? null,
+                passwordHash
+            }
+        })
+
         return NextResponse.json(
-            { message: 'Benutzer erfolgreich erstellt. Bitte bestätigen Sie Ihre E-Mail.' },
+            { message: 'Benutzer erfolgreich erstellt' },
             { status: 201 }
         )
     } catch (error) {

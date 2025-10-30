@@ -14,23 +14,24 @@ datasource db {
 }
 
 model Invitation {
-  id          String   @id @default(cuid())
-  title       String
-  address     String
-  date        DateTime
-  time        String
-  description String?
+  id              String   @id @default(cuid())
+  title           String
+  address         String
+  date            DateTime
+  time            String
+  description     String?
   backgroundImage String?
-  contactInfo String?
+  contactInfo     String?
   spotifyPlaylist String?
   photoUploadLink String?
-  
+
   // Beziehungen
-  userId      String   // Supabase User ID
-  guests      Guest[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+  guests Guest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Guest {
@@ -42,11 +43,24 @@ model Guest {
   plusOne     Boolean? // null für Paare, true/false für Einzelpersonen
   isAttending Boolean?
   notes       String?
-  
+
   // Beziehungen
   invitationId String
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  name         String?
+  passwordHash String
+  contactInfo  String?
+
+  invitations Invitation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
