@@ -29,6 +29,7 @@ model Invitation {
   userId String
   user   User    @relation(fields: [userId], references: [id])
   guests Guest[]
+  invitationQuestions InvitationQuestion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,6 +49,7 @@ model Guest {
   // Beziehungen
   invitationId String
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  answers      GuestAnswer[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,4 +66,78 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Fragen & Antworten für Einladungen
+
+enum QuestionType {
+  TEXT
+  SINGLE
+  MULTI
+}
+
+model Question {
+  id        String        @id @default(cuid())
+  prompt    String
+  type      QuestionType
+
+  // Beziehungen
+  options             QuestionOption[]
+  invitationQuestions InvitationQuestion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvitationQuestion {
+  id            String      @id @default(cuid())
+  invitationId  String
+  questionId    String
+  position      Int         @default(0)
+  required      Boolean     @default(false)
+
+  // Beziehungen
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  question   Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    GuestAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  questionId String
+  label      String
+  position   Int      @default(0)
+
+  // Beziehungen
+  question       Question            @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerOptions  GuestAnswerOption[]
+}
+
+model GuestAnswer {
+  id                     String   @id @default(cuid())
+  guestId                String
+  invitationQuestionId   String
+  textAnswer             String?
+  personIndex            Int      @default(1)
+
+  // Beziehungen
+  guest              Guest              @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  invitationQuestion InvitationQuestion @relation(fields: [invitationQuestionId], references: [id], onDelete: Cascade)
+  selectedOptions    GuestAnswerOption[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GuestAnswerOption {
+  id            String         @id @default(cuid())
+  guestAnswerId String
+  optionId      String
+
+  // Beziehungen
+  guestAnswer GuestAnswer   @relation(fields: [guestAnswerId], references: [id], onDelete: Cascade)
+  option      QuestionOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
 }

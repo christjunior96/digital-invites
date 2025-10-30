@@ -46,6 +46,9 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
         plusOne: false,
         notes: ''
     })
+    const [dynQuestions, setDynQuestions] = useState<any[]>([])
+    const [answersP1, setAnswersP1] = useState<Record<string, { text?: string; optionIds?: string[] }>>({})
+    const [answersP2, setAnswersP2] = useState<Record<string, { text?: string; optionIds?: string[] }>>({})
 
     const fetchGuestData = useCallback(async () => {
         try {
@@ -84,6 +87,27 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
     useEffect(() => {
         fetchGuestData()
     }, [fetchGuestData])
+
+    useEffect(() => {
+        const loadQA = async () => {
+            try {
+                const res = await fetch(`/api/guest/${id}/answers`)
+                if (!res.ok) return
+                const data = await res.json()
+                setDynQuestions(data.invitationQuestions || [])
+                const a1: Record<string, { text?: string; optionIds?: string[] }> = {}
+                const a2: Record<string, { text?: string; optionIds?: string[] }> = {}
+                for (const ans of data.answers || []) {
+                    const target = ans.personIndex === 2 ? a2 : a1
+                    if (ans.textAnswer) target[ans.invitationQuestionId] = { ...(target[ans.invitationQuestionId] || {}), text: ans.textAnswer }
+                    if (ans.selectedOptions?.length) target[ans.invitationQuestionId] = { ...(target[ans.invitationQuestionId] || {}), optionIds: ans.selectedOptions.map((o: any) => o.optionId) }
+                }
+                setAnswersP1(a1)
+                setAnswersP2(a2)
+            } catch {}
+        }
+        loadQA()
+    }, [id])
 
     // Setze Hintergrund auf body
     useEffect(() => {
@@ -176,6 +200,37 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
             })
 
             if (response.ok) {
+                if (formData.isAttending === true) {
+                    const hasSecond = guest.isCouple || (guest.plusOneAllowed === true && formData.plusOne === true)
+                    const payload = {
+                        answers: [
+                            ...dynQuestions.map((iq: any) => {
+                                const val = answersP1[iq.id] || {}
+                                return {
+                                    invitationQuestionId: iq.id,
+                                    textAnswer: iq.question.type === 'TEXT' ? (val.text ?? null) : null,
+                                    optionIds: (iq.question.type === 'SINGLE' || iq.question.type === 'MULTI') ? (val.optionIds ?? []) : [],
+                                    personIndex: 1
+                                }
+                            }),
+                            ...(hasSecond ? dynQuestions.map((iq: any) => {
+                                const val = answersP2[iq.id] || {}
+                                return {
+                                    invitationQuestionId: iq.id,
+                                    textAnswer: iq.question.type === 'TEXT' ? (val.text ?? null) : null,
+                                    optionIds: (iq.question.type === 'SINGLE' || iq.question.type === 'MULTI') ? (val.optionIds ?? []) : [],
+                                    personIndex: 2
+                                }
+                            }) : [])
+                        ]
+                    }
+                    await fetch(`/api/guest/${id}/answers`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                }
+
                 setIsSubmitted(true)
                 setError('')
 
@@ -374,6 +429,124 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                     placeholder="Allergien, besondere Wünsche oder andere Anmerkungen..."
                                 />
                             </div>
+
+                            {dynQuestions.length > 0 && formData.isAttending === true && (
+                                <div className="guest-form-group" style={{ marginTop: '1rem' }}>
+                                    <label className="guest-form-label">Zusätzliche Fragen</label>
+                                    <div style={{ display: 'grid', gap: '0.75rem' }}>
+                                        {dynQuestions.map((iq: any) => (
+                                            <div key={iq.id}>
+                                                <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                                                    {iq.question.prompt}{iq.required ? ' *' : ''}
+                                                </div>
+                                                {iq.question.type === 'TEXT' && (
+                                                    <input
+                                                        type="text"
+                                                        value={answersP1[iq.id]?.text || ''}
+                                                        onChange={(e) => setAnswersP1(prev => ({ ...prev, [iq.id]: { ...(prev[iq.id] || {}), text: e.target.value } }))}
+                                                        style={{ width: '100%', padding: '0.6rem', borderRadius: 8, border: '1px solid #e5e7eb' }}
+                                                    />
+                                                )}
+                                                {iq.question.type === 'SINGLE' && (
+                                                    <div style={{ display: 'grid', gap: 6 }}>
+                                                        {iq.question.options.map((opt: any) => (
+                                                            <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`q-${iq.id}`}
+                                                                    checked={(answersP1[iq.id]?.optionIds || [])[0] === opt.id}
+                                                                    onChange={() => setAnswersP1(prev => ({ ...prev, [iq.id]: { optionIds: [opt.id] } }))}
+                                                                />
+                                                                <span>{opt.label}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {iq.question.type === 'MULTI' && (
+                                                    <div style={{ display: 'grid', gap: 6 }}>
+                                                        {iq.question.options.map((opt: any) => {
+                                                            const selected = (answersP1[iq.id]?.optionIds || []).includes(opt.id)
+                                                            return (
+                                                                <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={selected}
+                                                                        onChange={(e) => setAnswersP1(prev => {
+                                                                            const current = new Set(prev[iq.id]?.optionIds || [])
+                                                                            if (e.target.checked) current.add(opt.id); else current.delete(opt.id)
+                                                                            return { ...prev, [iq.id]: { optionIds: Array.from(current) } }
+                                                                        })}
+                                                                    />
+                                                                    <span>{opt.label}</span>
+                                                                </label>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {dynQuestions.length > 0 && formData.isAttending === true && (guest.isCouple || (guest.plusOneAllowed === true && formData.plusOne === true)) && (
+                                <div className="guest-form-group" style={{ marginTop: '1rem' }}>
+                                    <label className="guest-form-label">Zusätzliche Fragen (Person 2)</label>
+                                    <div style={{ display: 'grid', gap: '0.75rem' }}>
+                                        {dynQuestions.map((iq: any) => (
+                                            <div key={iq.id}>
+                                                <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                                                    {iq.question.prompt}{iq.required ? ' *' : ''}
+                                                </div>
+                                                {iq.question.type === 'TEXT' && (
+                                                    <input
+                                                        type="text"
+                                                        value={answersP2[iq.id]?.text || ''}
+                                                        onChange={(e) => setAnswersP2(prev => ({ ...prev, [iq.id]: { ...(prev[iq.id] || {}), text: e.target.value } }))}
+                                                        style={{ width: '100%', padding: '0.6rem', borderRadius: 8, border: '1px solid #e5e7eb' }}
+                                                    />
+                                                )}
+                                                {iq.question.type === 'SINGLE' && (
+                                                    <div style={{ display: 'grid', gap: 6 }}>
+                                                        {iq.question.options.map((opt: any) => (
+                                                            <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`q2-${iq.id}`}
+                                                                    checked={(answersP2[iq.id]?.optionIds || [])[0] === opt.id}
+                                                                    onChange={() => setAnswersP2(prev => ({ ...prev, [iq.id]: { optionIds: [opt.id] } }))}
+                                                                />
+                                                                <span>{opt.label}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {iq.question.type === 'MULTI' && (
+                                                    <div style={{ display: 'grid', gap: 6 }}>
+                                                        {iq.question.options.map((opt: any) => {
+                                                            const selected = (answersP2[iq.id]?.optionIds || []).includes(opt.id)
+                                                            return (
+                                                                <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={selected}
+                                                                        onChange={(e) => setAnswersP2(prev => {
+                                                                            const current = new Set(prev[iq.id]?.optionIds || [])
+                                                                            if (e.target.checked) current.add(opt.id); else current.delete(opt.id)
+                                                                            return { ...prev, [iq.id]: { optionIds: Array.from(current) } }
+                                                                        })}
+                                                                    />
+                                                                    <span>{opt.label}</span>
+                                                                </label>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <button type="submit" className="guest-submit-button">
                                 Antwort senden

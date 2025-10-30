@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
     title: 'Impressum – Digital Invites',
@@ -9,9 +10,9 @@ export default function ImpressumPage() {
     return (
         <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
             <p style={{ marginBottom: '1rem' }}>
-                <a href="/" className="btn btn--primary" aria-label="Zur Startseite">
+                <Link href="/" className="btn btn--primary" aria-label="Zur Startseite">
                     ← Zur Startseite
-                </a>
+                </Link>
             </p>
             <h1 className="navigation-title" style={{ marginBottom: '1rem' }}>Impressum</h1>
             <p style={{ color: '#666', marginBottom: '2rem' }}>Angaben gemäß § 5 TMG</p>

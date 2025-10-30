@@ -46,6 +46,24 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
         plusOneAllowed: false
     })
 
+    const exportCsv = async () => {
+        try {
+            const res = await fetch(`/api/invitations/${id}/guests/export`)
+            if (!res.ok) return
+            const blob = await res.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `gaesteliste-${id}.csv`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            window.URL.revokeObjectURL(url)
+        } catch {
+            console.error('Fehler beim CSV-Export')
+        }
+    }
+
     const fetchInvitation = useCallback(async () => {
         try {
             const response = await fetch(`/api/invitations/${id}`)
@@ -169,6 +187,9 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                     <p className="guests-event-details">
                         {new Date(invitation.date).toLocaleDateString('de-DE')} um {invitation.time} - {invitation.address}
                     </p>
+                    <div style={{ marginTop: 12 }}>
+                        <Button onClick={exportCsv}>CSV exportieren</Button>
+                    </div>
                 </div>
 
                 <div className="guests-content">

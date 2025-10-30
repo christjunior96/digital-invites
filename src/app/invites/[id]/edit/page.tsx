@@ -44,12 +44,15 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
     const [imagePreview, setImagePreview] = useState<string>('')
     const [currentImageUrl, setCurrentImageUrl] = useState<string>('')
     const [imageRemoved, setImageRemoved] = useState(false)
+    const [questions, setQuestions] = useState<any[]>([])
+    const [questionForm, setQuestionForm] = useState<{ prompt: string; type: 'TEXT' | 'SINGLE' | 'MULTI'; required: boolean; options: { label: string }[] }>({ prompt: '', type: 'TEXT', required: false, options: [] })
 
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/login')
         } else if (status === 'authenticated') {
             fetchInvitation()
+            fetchQuestions()
         }
     }, [status, router])
 
@@ -90,6 +93,56 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const fetchQuestions = async () => {
+        try {
+            const { id } = await params
+            const res = await fetch(`/api/invitations/${id}/questions`)
+            if (res.ok) {
+                const data = await res.json()
+                setQuestions(data)
+            }
+        } catch (e) {
+            console.error('Fehler beim Laden der Fragen:', e)
+        }
+    }
+
+    const addOption = () => {
+        setQuestionForm(prev => ({ ...prev, options: [...prev.options, { label: '' }] }))
+    }
+
+    const removeOption = (idx: number) => {
+        setQuestionForm(prev => ({ ...prev, options: prev.options.filter((_, i) => i !== idx) }))
+    }
+
+    const createQuestion = async () => {
+        const { id } = await params
+        if (!questionForm.prompt.trim()) return
+        const payload: any = {
+            prompt: questionForm.prompt,
+            type: questionForm.type,
+            required: questionForm.required
+        }
+        if ((questionForm.type === 'SINGLE' || questionForm.type === 'MULTI') && questionForm.options.length > 0) {
+            payload.options = questionForm.options.filter(o => o.label.trim()).map((o, idx) => ({ label: o.label, position: idx }))
+        }
+        const res = await fetch(`/api/invitations/${id}/questions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        if (res.ok) {
+            setQuestionForm({ prompt: '', type: 'TEXT', required: false, options: [] })
+            await fetchQuestions()
+        }
+    }
+
+    const deleteQuestion = async (invitationQuestionId: string) => {
+        const { id } = await params
+        if (!confirm('Frage wirklich löschen?')) return
+        const res = await fetch(`/api/invitations/${id}/questions/${invitationQuestionId}`, { method: 'DELETE' })
+        if (res.ok) await fetchQuestions()
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -413,6 +466,72 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                                 onChange={(e) => setFormData(prev => ({ ...prev, contactInfo: e.target.value }))}
                                 placeholder="Telefonnummer, E-Mail oder andere Kontaktdaten für Rückfragen"
                             />
+
+                            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed #e5e7eb' }}>
+                                <h3 style={{ marginTop: 0 }}>Individuelle Fragen</h3>
+
+                                <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1rem' }}>
+                                    <Input
+                                        label="Fragetext"
+                                        value={questionForm.prompt}
+                                        onChange={(e) => setQuestionForm(prev => ({ ...prev, prompt: e.target.value }))}
+                                        placeholder="z.B. Essenswunsch, Allergien"
+                                    />
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: 6 }}>Typ</label>
+                                            <select value={questionForm.type} onChange={(e) => setQuestionForm(prev => ({ ...prev, type: e.target.value as any }))} style={{ width: '100%', padding: '0.6rem', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+                                                <option value="TEXT">Freitext</option>
+                                                <option value="SINGLE">Single-Choice</option>
+                                                <option value="MULTI">Multi-Choice</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: 6 }}>Pflichtfeld</label>
+                                            <input type="checkbox" checked={questionForm.required} onChange={(e) => setQuestionForm(prev => ({ ...prev, required: e.target.checked }))} />
+                                        </div>
+                                    </div>
+
+                                    {(questionForm.type === 'SINGLE' || questionForm.type === 'MULTI') && (
+                                        <div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <label style={{ fontWeight: 500 }}>Optionen</label>
+                                                <Button type="button" onClick={addOption}>Option hinzufügen</Button>
+                                            </div>
+                                            <div style={{ display: 'grid', gap: '0.5rem', marginTop: 8 }}>
+                                                {questionForm.options.map((opt, idx) => (
+                                                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.5rem', alignItems: 'center' }}>
+                                                        <input placeholder="Label" value={opt.label} onChange={(e) => setQuestionForm(prev => { const copy = [...prev.options]; copy[idx] = { ...copy[idx], label: e.target.value }; return { ...prev, options: copy } })} style={{ padding: '0.6rem', borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                                                        <button type="button" onClick={() => removeOption(idx)} style={{ padding: '0.5rem 0.75rem' }}>✖️</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <Button type="button" onClick={createQuestion}>Frage anlegen</Button>
+                                    </div>
+                                </div>
+
+                                {questions.length === 0 ? (
+                                    <div style={{ color: '#6b7280' }}>Noch keine Fragen angelegt</div>
+                                ) : (
+                                    <div style={{ display: 'grid', gap: '0.5rem' }}>
+                                        {questions.map((iq) => (
+                                            <div key={iq.id} style={{ border: '1px solid #e5e7eb', borderRadius: 10, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div>
+                                                    <div style={{ fontWeight: 600 }}>{iq.question?.prompt}</div>
+                                                    <div style={{ fontSize: 12, color: '#6b7280' }}>{iq.question?.type}{iq.required ? ' · Pflicht' : ''} · Pos {iq.position}</div>
+                                                </div>
+                                                <div>
+                                                    <Button type="button" variant="outline" onClick={() => deleteQuestion(iq.id)}>Löschen</Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div style={{

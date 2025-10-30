@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
     title: 'Datenschutzerklärung – Digital Invites',
@@ -9,9 +10,9 @@ export default function DatenschutzPage() {
     return (
         <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
             <p style={{ marginBottom: '1rem' }}>
-                <a href="/" className="btn btn--primary" aria-label="Zur Startseite">
+                <Link href="/" className="btn btn--primary" aria-label="Zur Startseite">
                     ← Zur Startseite
-                </a>
+                </Link>
             </p>
             <h1 className="navigation-title" style={{ marginBottom: '1rem' }}>Datenschutzerklärung</h1>
             <p style={{ color: '#666', marginBottom: '2rem' }}>Stand: {new Date().toLocaleDateString('de-DE')}</p>

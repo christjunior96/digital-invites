@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'FAQ – Digital Invites | Häufige Fragen',
@@ -61,9 +62,9 @@ export default function FAQPage() {
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
       <p style={{ marginBottom: '1rem' }}>
-        <a href="/" className="btn btn--primary" aria-label="Zur Startseite">
+        <Link href="/" className="btn btn--primary" aria-label="Zur Startseite">
           ← Zur Startseite
-        </a>
+        </Link>
       </p>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <h1 className="navigation-title" style={{ marginBottom: '1rem' }}>FAQ</h1>
