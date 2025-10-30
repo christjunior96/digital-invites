@@ -70,7 +70,7 @@ export async function GET(
       const base = [g.name, g.email ?? '', status, String(people)]
 
       const list = guestIdToAnswers.get(g.id) || []
-      const getVal = (iq: any, personIndex: number) => {
+      const getVal = (iq: { id: string; question: { type: 'TEXT' | 'SINGLE' | 'MULTI' } }, personIndex: number) => {
         const ans = list.find(a => a.invitationQuestionId === iq.id && (a.personIndex ?? 1) === personIndex)
         if (!ans) return ''
         if (iq.question.type === 'TEXT') return ans.textAnswer ?? ''

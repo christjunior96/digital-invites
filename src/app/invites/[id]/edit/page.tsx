@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/atoms/Button'
 import { Input } from '@/components/atoms/Input'
 import { Textarea } from '@/components/atoms/Textarea'
@@ -42,21 +42,13 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
     })
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string>('')
-    const [currentImageUrl, setCurrentImageUrl] = useState<string>('')
     const [imageRemoved, setImageRemoved] = useState(false)
-    const [questions, setQuestions] = useState<any[]>([])
+    type AdminQuestionType = 'TEXT' | 'SINGLE' | 'MULTI'
+    interface AdminInvitationQuestion { id: string; position: number; required: boolean; question?: { prompt: string; type: AdminQuestionType } }
+    const [questions, setQuestions] = useState<AdminInvitationQuestion[]>([])
     const [questionForm, setQuestionForm] = useState<{ prompt: string; type: 'TEXT' | 'SINGLE' | 'MULTI'; required: boolean; options: { label: string }[] }>({ prompt: '', type: 'TEXT', required: false, options: [] })
 
-    useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/login')
-        } else if (status === 'authenticated') {
-            fetchInvitation()
-            fetchQuestions()
-        }
-    }, [status, router])
-
-    const fetchInvitation = async () => {
+    const fetchInvitation = useCallback(async () => {
         try {
             const { id } = await params
             const response = await fetch(`/api/invitations/${id}`)
@@ -76,13 +68,11 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                 // Bild-States zurücksetzen
                 setSelectedImage(null)
                 setImagePreview('')
-                setCurrentImageUrl('')
                 setImageRemoved(false)
 
                 // Bild setzen, falls vorhanden
                 if (data.backgroundImage) {
                     setImagePreview(data.backgroundImage)
-                    setCurrentImageUrl(data.backgroundImage)
                 }
             } else {
                 setError('Einladung nicht gefunden')
@@ -93,9 +83,9 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [params])
 
-    const fetchQuestions = async () => {
+    const fetchQuestions = useCallback(async () => {
         try {
             const { id } = await params
             const res = await fetch(`/api/invitations/${id}/questions`)
@@ -106,7 +96,16 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
         } catch (e) {
             console.error('Fehler beim Laden der Fragen:', e)
         }
-    }
+    }, [params])
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/login')
+        } else if (status === 'authenticated') {
+            fetchInvitation()
+            fetchQuestions()
+        }
+    }, [status, router, fetchInvitation, fetchQuestions])
 
     const addOption = () => {
         setQuestionForm(prev => ({ ...prev, options: [...prev.options, { label: '' }] }))
@@ -119,7 +118,7 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
     const createQuestion = async () => {
         const { id } = await params
         if (!questionForm.prompt.trim()) return
-        const payload: any = {
+        const payload: { prompt: string; type: 'TEXT' | 'SINGLE' | 'MULTI'; required: boolean; options?: { label: string; position: number }[] } = {
             prompt: questionForm.prompt,
             type: questionForm.type,
             required: questionForm.required
@@ -161,7 +160,6 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
     const handleRemoveImage = () => {
         setSelectedImage(null)
         setImagePreview('')
-        setCurrentImageUrl('')
         setImageRemoved(true)
     }
 
@@ -480,7 +478,7 @@ export default function EditInvitationPage({ params }: { params: Promise<{ id: s
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                                         <div>
                                             <label style={{ display: 'block', marginBottom: 6 }}>Typ</label>
-                                            <select value={questionForm.type} onChange={(e) => setQuestionForm(prev => ({ ...prev, type: e.target.value as any }))} style={{ width: '100%', padding: '0.6rem', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+                                            <select value={questionForm.type} onChange={(e) => setQuestionForm(prev => ({ ...prev, type: e.target.value as 'TEXT' | 'SINGLE' | 'MULTI' }))} style={{ width: '100%', padding: '0.6rem', borderRadius: 8, border: '1px solid #e5e7eb' }}>
                                                 <option value="TEXT">Freitext</option>
                                                 <option value="SINGLE">Single-Choice</option>
                                                 <option value="MULTI">Multi-Choice</option>

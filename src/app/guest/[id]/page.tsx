@@ -46,7 +46,11 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
         plusOne: false,
         notes: ''
     })
-    const [dynQuestions, setDynQuestions] = useState<any[]>([])
+    type QuestionType = 'TEXT' | 'SINGLE' | 'MULTI'
+    interface QuestionOption { id: string; label: string }
+    interface Question { id: string; prompt: string; type: QuestionType; options: QuestionOption[] }
+    interface InvitationQuestion { id: string; required: boolean; question: Question }
+    const [dynQuestions, setDynQuestions] = useState<InvitationQuestion[]>([])
     const [answersP1, setAnswersP1] = useState<Record<string, { text?: string; optionIds?: string[] }>>({})
     const [answersP2, setAnswersP2] = useState<Record<string, { text?: string; optionIds?: string[] }>>({})
 
@@ -86,7 +90,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
 
     useEffect(() => {
         fetchGuestData()
-    }, [fetchGuestData])
+    }, [fetchGuestData, hasShownCelebration])
 
     useEffect(() => {
         const loadQA = async () => {
@@ -97,10 +101,10 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                 setDynQuestions(data.invitationQuestions || [])
                 const a1: Record<string, { text?: string; optionIds?: string[] }> = {}
                 const a2: Record<string, { text?: string; optionIds?: string[] }> = {}
-                for (const ans of data.answers || []) {
+                for (const ans of (data.answers || []) as Array<{ invitationQuestionId: string; textAnswer?: string | null; selectedOptions?: Array<{ optionId: string }>; personIndex?: number }>) {
                     const target = ans.personIndex === 2 ? a2 : a1
                     if (ans.textAnswer) target[ans.invitationQuestionId] = { ...(target[ans.invitationQuestionId] || {}), text: ans.textAnswer }
-                    if (ans.selectedOptions?.length) target[ans.invitationQuestionId] = { ...(target[ans.invitationQuestionId] || {}), optionIds: ans.selectedOptions.map((o: any) => o.optionId) }
+                    if (ans.selectedOptions?.length) target[ans.invitationQuestionId] = { ...(target[ans.invitationQuestionId] || {}), optionIds: ans.selectedOptions.map((o) => o.optionId) }
                 }
                 setAnswersP1(a1)
                 setAnswersP2(a2)
@@ -200,11 +204,11 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
             })
 
             if (response.ok) {
-                if (formData.isAttending === true) {
+                if (formData.isAttending === true && guest) {
                     const hasSecond = guest.isCouple || (guest.plusOneAllowed === true && formData.plusOne === true)
                     const payload = {
                         answers: [
-                            ...dynQuestions.map((iq: any) => {
+                            ...dynQuestions.map((iq: InvitationQuestion) => {
                                 const val = answersP1[iq.id] || {}
                                 return {
                                     invitationQuestionId: iq.id,
@@ -213,7 +217,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                     personIndex: 1
                                 }
                             }),
-                            ...(hasSecond ? dynQuestions.map((iq: any) => {
+                            ...(hasSecond ? dynQuestions.map((iq: InvitationQuestion) => {
                                 const val = answersP2[iq.id] || {}
                                 return {
                                     invitationQuestionId: iq.id,
@@ -434,7 +438,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                 <div className="guest-form-group" style={{ marginTop: '1rem' }}>
                                     <label className="guest-form-label">Zusätzliche Fragen</label>
                                     <div style={{ display: 'grid', gap: '0.75rem' }}>
-                                        {dynQuestions.map((iq: any) => (
+                                        {dynQuestions.map((iq: InvitationQuestion) => (
                                             <div key={iq.id}>
                                                 <div style={{ fontWeight: 600, marginBottom: 6 }}>
                                                     {iq.question.prompt}{iq.required ? ' *' : ''}
@@ -449,7 +453,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                                 )}
                                                 {iq.question.type === 'SINGLE' && (
                                                     <div style={{ display: 'grid', gap: 6 }}>
-                                                        {iq.question.options.map((opt: any) => (
+                                                        {iq.question.options.map((opt: QuestionOption) => (
                                                             <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                                                 <input
                                                                     type="radio"
@@ -464,7 +468,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                                 )}
                                                 {iq.question.type === 'MULTI' && (
                                                     <div style={{ display: 'grid', gap: 6 }}>
-                                                        {iq.question.options.map((opt: any) => {
+                                                        {iq.question.options.map((opt: QuestionOption) => {
                                                             const selected = (answersP1[iq.id]?.optionIds || []).includes(opt.id)
                                                             return (
                                                                 <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -493,7 +497,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                 <div className="guest-form-group" style={{ marginTop: '1rem' }}>
                                     <label className="guest-form-label">Zusätzliche Fragen (Person 2)</label>
                                     <div style={{ display: 'grid', gap: '0.75rem' }}>
-                                        {dynQuestions.map((iq: any) => (
+                                        {dynQuestions.map((iq: InvitationQuestion) => (
                                             <div key={iq.id}>
                                                 <div style={{ fontWeight: 600, marginBottom: 6 }}>
                                                     {iq.question.prompt}{iq.required ? ' *' : ''}
@@ -508,7 +512,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                                 )}
                                                 {iq.question.type === 'SINGLE' && (
                                                     <div style={{ display: 'grid', gap: 6 }}>
-                                                        {iq.question.options.map((opt: any) => (
+                                                        {iq.question.options.map((opt: QuestionOption) => (
                                                             <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                                                 <input
                                                                     type="radio"
@@ -523,7 +527,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                                 )}
                                                 {iq.question.type === 'MULTI' && (
                                                     <div style={{ display: 'grid', gap: 6 }}>
-                                                        {iq.question.options.map((opt: any) => {
+                                                        {iq.question.options.map((opt: QuestionOption) => {
                                                             const selected = (answersP2[iq.id]?.optionIds || []).includes(opt.id)
                                                             return (
                                                                 <label key={opt.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
