@@ -16,6 +16,7 @@ interface Guest {
     phone?: string
     isCouple: boolean
     plusOne?: boolean
+    plusOneAllowed?: boolean
     isAttending: boolean | null
     notes?: string
 }
@@ -41,7 +42,8 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
         name: '',
         email: '',
         phone: '',
-        isCouple: false
+        isCouple: false,
+        plusOneAllowed: false
     })
 
     const fetchInvitation = useCallback(async () => {
@@ -77,13 +79,17 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(newGuest)
+                body: JSON.stringify({
+                    ...newGuest,
+                    // Bei Paaren ist plusOneAllowed irrelevant
+                    plusOneAllowed: newGuest.isCouple ? undefined : newGuest.plusOneAllowed
+                })
             })
 
             if (response.ok) {
                 const guest = await response.json()
                 setGuests(prev => [...prev, guest])
-                setNewGuest({ name: '', email: '', phone: '', isCouple: false })
+                setNewGuest({ name: '', email: '', phone: '', isCouple: false, plusOneAllowed: false })
             } else {
                 const data = await response.json()
                 setError(data.error || 'Fehler beim Hinzufügen des Gasts')
@@ -113,6 +119,22 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
         const link = `${window.location.origin}/guest/${guestId}`
         navigator.clipboard.writeText(link)
         alert('Link kopiert!')
+    }
+
+    const togglePlusOneAllowed = async (guestId: string, current: boolean | undefined, isCouple: boolean) => {
+        try {
+            const response = await fetch(`/api/guest/${guestId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ plusOneAllowed: !current })
+            })
+            if (response.ok) {
+                const { guest } = await response.json()
+                setGuests(prev => prev.map(g => g.id === guestId ? { ...g, plusOneAllowed: guest.plusOneAllowed, plusOne: guest.plusOne } : g))
+            }
+        } catch {
+            setError('Fehler beim Aktualisieren der +1-Erlaubnis')
+        }
     }
 
     if (status === 'loading' || isLoading) {
@@ -185,17 +207,47 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                                 placeholder="Telefonnummer des Gasts"
                             />
 
-                            <div className="guests-checkbox-group">
-                                <label className="guests-checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        className="guests-checkbox"
-                                        checked={newGuest.isCouple}
-                                        onChange={(e) => setNewGuest(prev => ({ ...prev, isCouple: e.target.checked }))}
-                                    />
-                                    <span className="guests-checkbox-text">Paar (zwei Personen)</span>
-                                </label>
+                            <div className="guest-form-group">
+                                <label className="guest-form-label">Gast-Typ</label>
+                                <div className="guest-type-switch">
+                                    <label className={`guest-type-option ${newGuest.isCouple ? '' : 'selected'}`}
+                                        onClick={() => setNewGuest(prev => ({ ...prev, isCouple: false }))}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="guestType"
+                                            checked={!newGuest.isCouple}
+                                            onChange={() => setNewGuest(prev => ({ ...prev, isCouple: false }))}
+                                        />
+                                        <span>Single</span>
+                                    </label>
+                                    <label className={`guest-type-option ${newGuest.isCouple ? 'selected' : ''}`}
+                                        onClick={() => setNewGuest(prev => ({ ...prev, isCouple: true, plusOneAllowed: false }))}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="guestType"
+                                            checked={newGuest.isCouple}
+                                            onChange={() => setNewGuest(prev => ({ ...prev, isCouple: true, plusOneAllowed: false }))}
+                                        />
+                                        <span>Paar (zwei Personen)</span>
+                                    </label>
+                                </div>
                             </div>
+
+                            {!newGuest.isCouple && (
+                                <div className="guests-checkbox-group">
+                                    <label className="guests-checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            className="guests-checkbox"
+                                            checked={newGuest.plusOneAllowed}
+                                            onChange={(e) => setNewGuest(prev => ({ ...prev, plusOneAllowed: e.target.checked }))}
+                                        />
+                                        <span>+1 erlauben</span>
+                                    </label>
+                                </div>
+                            )}
 
                             <Button type="submit" className="w-full">
                                 Gast hinzufügen
@@ -216,46 +268,57 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                                 {guests.map((guest) => (
                                     <div key={guest.id} className="guests-item-card">
                                         <div className="guests-item-content">
-                                            <div className="guests-item-info">
-                                                <h4 className="guests-item-name">
-                                                    {guest.name}
-                                                    {guest.isCouple && <span className="guests-item-couple"> (Paar)</span>}
-                                                </h4>
-                                                {guest.email && (
-                                                    <p className="guests-item-contact">
-                                                        {guest.email}
-                                                    </p>
-                                                )}
-                                                {guest.phone && (
-                                                    <p className="guests-item-contact">
-                                                        {guest.phone}
-                                                    </p>
-                                                )}
-                                                <div className="guests-item-status">
-                                                    <span className={
-                                                        guest.isAttending === true ? 'guests-item-status-attending' :
-                                                            guest.isAttending === false ? 'guests-item-status-declined' :
-                                                                'guests-item-status-pending'
-                                                    }>
-                                                        {guest.isAttending === true ? '✅ Zusage' :
-                                                            guest.isAttending === false ? '❌ Absage' :
-                                                                '⏳ Ausstehend'}
-                                                    </span>
-                                                    {guest.plusOne && <span>+1</span>}
+                                            <div className="guests-item-info" style={{ flex: 1 }}>
+                                                <div className="guests-item-header">
+                                                    <h4 className="guests-item-name" style={{ marginBottom: 0 }}>
+                                                        {guest.name}
+                                                        {guest.isCouple && <span className="guests-item-couple"> (Paar)</span>}
+                                                    </h4>
+                                                    <div className="guests-item-badges">
+                                                        <span className={`badge ${guest.isAttending === true ? 'badge--attending' :
+                                                            guest.isAttending === false ? 'badge--declined' :
+                                                                'badge--pending'
+                                                            }`}>
+                                                            {guest.isAttending === true ? 'Zusage' :
+                                                                guest.isAttending === false ? 'Absage' :
+                                                                    'Ausstehend'}
+                                                        </span>
+                                                        {guest.plusOne && (
+                                                            <span className="badge badge--allowed">+1</span>
+                                                        )}
+                                                    </div>
                                                 </div>
+                                                {(guest.email || guest.phone) && (
+                                                    <div className="guests-item-meta">
+                                                        {guest.email && <span>{guest.email}</span>}
+                                                        {guest.email && guest.phone && <span> · </span>}
+                                                        {guest.phone && <span>{guest.phone}</span>}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="guests-item-actions">
                                                 <button
-                                                    className="guests-item-button guests-item-button-outline"
+                                                    className="guests-item-button guests-item-button-outline guests-item-button-compact"
                                                     onClick={() => copyGuestLink(guest.id)}
+                                                    aria-label="Link kopieren"
                                                 >
-                                                    Link kopieren
+                                                    📋
                                                 </button>
+                                                {!guest.isCouple && (
+                                                    <button
+                                                        className="guests-item-button guests-item-button-outline guests-item-button-compact"
+                                                        onClick={() => togglePlusOneAllowed(guest.id, guest.plusOneAllowed, guest.isCouple)}
+                                                        aria-label={guest.plusOneAllowed ? 'Plus One verbieten' : 'Plus One erlauben'}
+                                                    >
+                                                        {guest.plusOneAllowed ? '🚫1' : '➕1'}
+                                                    </button>
+                                                )}
                                                 <button
-                                                    className="guests-item-button guests-item-button-danger"
+                                                    className="guests-item-button guests-item-button-danger guests-item-button-compact"
                                                     onClick={() => handleDeleteGuest(guest.id)}
+                                                    aria-label="Löschen"
                                                 >
-                                                    Löschen
+                                                    🗑️
                                                 </button>
                                             </div>
                                         </div>

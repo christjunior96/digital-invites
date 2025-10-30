@@ -14,6 +14,7 @@ interface Guest {
     phone?: string
     isCouple: boolean
     plusOne?: boolean
+    plusOneAllowed?: boolean
     isAttending: boolean | null
     notes?: string
 }
@@ -55,7 +56,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                 setInvitation(data.invitation)
 
                 // Vorausfüllen der Formulardaten
-                if (data.guest.isAttending !== null) {
+                        if (data.guest.isAttending !== null) {
                     setFormData(prev => ({
                         ...prev,
                         isAttending: data.guest.isAttending,
@@ -350,7 +351,7 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
                                 </div>
                             </div>
 
-                            {!guest.isCouple && formData.isAttending === true && (
+                            {!guest.isCouple && guest.plusOneAllowed === true && formData.isAttending === true && (
                                 <div className="guest-form-group">
                                     <label className="guest-checkbox-group">
                                         <input

@@ -29,6 +29,7 @@ export async function GET(
                 phone: guest.phone,
                 isCouple: guest.isCouple,
                 plusOne: guest.plusOne,
+                plusOneAllowed: guest.plusOneAllowed,
                 isAttending: guest.isAttending,
                 notes: guest.notes
             },
@@ -69,11 +70,24 @@ export async function PUT(
             )
         }
 
+        // Lade aktuellen Gast zur Validierung
+        const existing = await prisma.guest.findUnique({ where: { id } })
+        if (!existing) {
+            return NextResponse.json({ error: 'Gast nicht gefunden' }, { status: 404 })
+        }
+
+        // Regel: Paare haben keine +1
+        let sanitizedPlusOne = false
+        if (!existing.isCouple) {
+            // Einzelpersonen dürfen nur +1, wenn explizit erlaubt
+            sanitizedPlusOne = plusOne === true && existing.plusOneAllowed === true
+        }
+
         const guest = await prisma.guest.update({
             where: { id },
             data: {
                 isAttending,
-                plusOne: plusOne || false,
+                plusOne: sanitizedPlusOne,
                 notes
             }
         })
@@ -90,6 +104,47 @@ export async function PUT(
         })
     } catch (error) {
         console.error('Fehler beim Speichern der Antwort:', error)
+        return NextResponse.json(
+            { error: 'Ein Fehler ist aufgetreten' },
+            { status: 500 }
+        )
+    }
+}
+
+export async function PATCH(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+        const { plusOneAllowed } = await request.json()
+
+        const existing = await prisma.guest.findUnique({ where: { id } })
+        if (!existing) {
+            return NextResponse.json({ error: 'Gast nicht gefunden' }, { status: 404 })
+        }
+
+        const updated = await prisma.guest.update({
+            where: { id },
+            data: {
+                // Nur für Einzelpersonen relevant; bei Paaren bleibt null
+                plusOneAllowed: existing.isCouple ? null : (typeof plusOneAllowed === 'boolean' ? plusOneAllowed : null),
+                // Wenn Erlaubnis entzogen wird, plusOne zurücksetzen
+                ...(existing.isCouple || plusOneAllowed !== true ? { plusOne: false } : {})
+            }
+        })
+
+        return NextResponse.json({
+            message: 'plusOneAllowed aktualisiert',
+            guest: {
+                id: updated.id,
+                isCouple: updated.isCouple,
+                plusOneAllowed: updated.plusOneAllowed,
+                plusOne: updated.plusOne
+            }
+        })
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren von plusOneAllowed:', error)
         return NextResponse.json(
             { error: 'Ein Fehler ist aufgetreten' },
             { status: 500 }

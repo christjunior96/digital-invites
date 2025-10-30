@@ -287,27 +287,19 @@ export default function DashboardPage() {
                                     </div>
                                     <div className="dashboard-invitation-actions">
                                         <button
-                                            className="dashboard-invitation-button"
+                                            className="dashboard-invitation-button dashboard-invitation-button-outline-danger"
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 router.push(`/invites/${invitation.id}/edit`)
-                                            }}
-                                            style={{
-                                                border: '2px solid #FF6B6B',
-                                                color: '#FF6B6B'
                                             }}
                                         >
                                             ✏️ Bearbeiten
                                         </button>
                                         <button
-                                            className="dashboard-invitation-button"
+                                            className="dashboard-invitation-button dashboard-invitation-button-outline-teal"
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 router.push(`/invites/${invitation.id}/guests`)
-                                            }}
-                                            style={{
-                                                border: '2px solid #4ECDC4',
-                                                color: '#4ECDC4'
                                             }}
                                         >
                                             👥 Gäste ({invitation.guests.length})

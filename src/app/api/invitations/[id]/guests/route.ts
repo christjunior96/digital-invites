@@ -42,6 +42,7 @@ export async function POST(
                 email: body.email || null,
                 phone: body.phone || null,
                 isCouple: body.isCouple,
+                plusOneAllowed: body.isCouple ? null : (typeof body.plusOneAllowed === 'boolean' ? body.plusOneAllowed : null),
                 invitationId: id,
             }
         })

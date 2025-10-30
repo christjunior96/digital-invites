@@ -41,6 +41,7 @@ model Guest {
   phone       String?
   isCouple    Boolean  @default(false)
   plusOne     Boolean? // null für Paare, true/false für Einzelpersonen
+  plusOneAllowed Boolean?
   isAttending Boolean?
   notes       String?
 

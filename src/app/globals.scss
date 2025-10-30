@@ -265,6 +265,68 @@ a {
     color: #4ECDC4;
 }
 
+// Segmented Switch (CI-konform) für Gast-Typ
+.guest-type-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 9999px;
+    padding: 0.25rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.guest-type-option {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    color: #666;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-width: 110px;
+}
+
+.guest-type-option:hover {
+    color: #333;
+    transform: translateY(-1px);
+}
+
+.guest-type-option.selected {
+    color: #fff;
+    background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+    box-shadow: 0 8px 22px rgba(255, 107, 107, 0.25);
+    border: 0; // keine sichtbare Umrandung im aktiven Zustand
+    outline: none;
+    background-clip: padding-box;
+}
+
+.guest-type-option input[type="radio"] {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.guest-type-option:focus,
+.guest-type-option:focus-visible {
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    .guest-type-option {
+        padding: 0.5rem 0.75rem;
+        min-width: 100px;
+        font-size: 0.9rem;
+    }
+}
+
 .guest-checkbox-group {
     display: flex;
     align-items: center;
@@ -1261,6 +1323,33 @@ a {
     box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
 }
 
+// Dashboard invitation button outline variants (consistent with outline hover fill)
+.dashboard-invitation-button-outline-danger {
+    background: transparent;
+    color: #FF6B6B;
+    border: 2px solid #FF6B6B;
+}
+
+.dashboard-invitation-button-outline-danger:hover {
+    background: #FF6B6B;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+}
+
+.dashboard-invitation-button-outline-teal {
+    background: transparent;
+    color: #4ECDC4;
+    border: 2px solid #4ECDC4;
+}
+
+.dashboard-invitation-button-outline-teal:hover {
+    background: #4ECDC4;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.3);
+}
+
 // Guests Page Styles
 .guests-page {
     min-height: 100vh;
@@ -1531,6 +1620,67 @@ a {
         flex-direction: column;
         gap: 1rem;
     }
+}
+
+// Compact header layout for guest item
+.guests-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.guests-item-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.badge--attending { color: #065f46; background: #d1fae5; border-color: #a7f3d0; }
+.badge--declined { color: #991b1b; background: #fee2e2; border-color: #fecaca; }
+.badge--pending { color: #92400e; background: #fef3c7; border-color: #fde68a; }
+.badge--allowed { color: #0f766e; background: #ccfbf1; border-color: #99f6e4; }
+
+.guests-item-meta {
+    margin-top: 0.25rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.guests-item-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+}
+
+// Compact icon buttons for guest actions
+.guests-item-button-compact {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-width: 36px;
+    min-height: 32px;
 }
 
 .guests-item-info {
