@@ -8,6 +8,7 @@ import { Button } from '@/components/atoms/Button'
 import { Input } from '@/components/atoms/Input'
 import { Card } from '@/components/atoms/Card'
 import { Navigation } from '@/components/organisms/Navigation'
+import QRCode from 'qrcode'
 
 interface Guest {
     id: string
@@ -137,6 +138,37 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
         const link = `${window.location.origin}/guest/${guestId}`
         navigator.clipboard.writeText(link)
         alert('Link kopiert!')
+    }
+
+    const downloadQRCode = async (guestId: string, guestName: string) => {
+        try {
+            const link = `${window.location.origin}/guest/${guestId}`
+            const qrDataUrl = await QRCode.toDataURL(link, {
+                width: 512,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            })
+            
+            // Konvertiere Data URL zu Blob
+            const response = await fetch(qrDataUrl)
+            const blob = await response.blob()
+            
+            // Erstelle Download-Link
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `qr-code-${guestName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            window.URL.revokeObjectURL(url)
+        } catch (error) {
+            console.error('Fehler beim Generieren des QR-Codes:', error)
+            setError('Fehler beim Generieren des QR-Codes')
+        }
     }
 
     const togglePlusOneAllowed = async (guestId: string, current: boolean | undefined, isCouple: boolean) => {
@@ -317,13 +349,37 @@ export default function GuestsPage({ params }: { params: Promise<{ id: string }>
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="guests-item-actions">
+                                            <div className="guests-item-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                                                 <button
                                                     className="guests-item-button guests-item-button-outline guests-item-button-compact"
                                                     onClick={() => copyGuestLink(guest.id)}
                                                     aria-label="Link kopieren"
                                                 >
                                                     📋
+                                                </button>
+                                                <button
+                                                    className="guests-item-button guests-item-button-outline guests-item-button-compact"
+                                                    onClick={() => downloadQRCode(guest.id, guest.name)}
+                                                    aria-label="QR-Code herunterladen"
+                                                    style={{ fontSize: '18px', lineHeight: 1 }}
+                                                >
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <rect x="3" y="3" width="5" height="5" fill="currentColor"/>
+                                                        <rect x="3" y="16" width="5" height="5" fill="currentColor"/>
+                                                        <rect x="16" y="3" width="5" height="5" fill="currentColor"/>
+                                                        <rect x="16" y="16" width="5" height="5" fill="currentColor"/>
+                                                        <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="11" y="7" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="7" y="11" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="3" y="11" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="19" y="11" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="15" y="11" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="11" y="15" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="11" y="19" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="7" y="19" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="15" y="19" width="2" height="2" fill="currentColor"/>
+                                                        <rect x="19" y="19" width="2" height="2" fill="currentColor"/>
+                                                    </svg>
                                                 </button>
                                                 {!guest.isCouple && (
                                                     <button
