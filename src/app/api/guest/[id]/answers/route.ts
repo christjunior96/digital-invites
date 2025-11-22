@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@/generated/client/client'
 
 type IncomingAnswer = {
     invitationQuestionId: string
@@ -63,7 +62,7 @@ export async function PUT(
             return NextResponse.json({ error: 'answers muss ein Array sein' }, { status: 400 })
         }
 
-        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        await prisma.$transaction(async (tx) => {
             for (const a of answers) {
                 // Validierung: Frage gehört zur Einladung des Gastes
                 const invQ = await tx.invitationQuestion.findFirst({
@@ -109,3 +108,5 @@ export async function PUT(
         return NextResponse.json({ error: 'Ein Fehler ist aufgetreten' }, { status: 500 })
     }
 }
+
+
